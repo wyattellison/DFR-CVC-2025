@@ -228,18 +228,18 @@ void Torque_SendTorque() {
     left_command.Tx_header.IDE = (CAN_INVERTER_USE_EXT) ? CAN_ID_EXT : CAN_ID_STD;
     left_command.Tx_header.RTR = CAN_RTR_DATA;
     if (CAN_INVERTER_USE_EXT) {
-        left_command.Tx_header.ExtId = CAN_INVERTER_BASE_ID1 + 32;
+        left_command.Tx_header.ExtId = CAN_INVERTER_BASE_ID1_29 + 32;
     } else {
-        left_command.Tx_header.StdId = CAN_INVERTER_BASE_ID1 + 32;
+        left_command.Tx_header.StdId = CAN_INVERTER_BASE_ID1_11 + 32;
     }
 
     right_command.Tx_header.DLC = 8;
     right_command.Tx_header.IDE = (CAN_INVERTER_USE_EXT) ? CAN_ID_EXT : CAN_ID_STD;
     right_command.Tx_header.RTR = CAN_RTR_DATA;
     if (CAN_INVERTER_USE_EXT) {
-        right_command.Tx_header.ExtId = CAN_INVERTER_BASE_ID2 + 32;
+        right_command.Tx_header.ExtId = CAN_INVERTER_BASE_ID2_29 + 32;
     } else {
-        right_command.Tx_header.StdId = CAN_INVERTER_BASE_ID2 + 32;
+        right_command.Tx_header.StdId = CAN_INVERTER_BASE_ID2_11 + 32;
     }
 
     CAN_Queue_TX(&left_command);

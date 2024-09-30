@@ -15,7 +15,7 @@
 #define DISABLE_ON_ZERO_THROTTLE 0  // Disable inverters when throttle is at 0%
 #define INVERTER_ACCEL_AVERAGE 3    // Number of acceleration values to average
 
-#define TORQUE_VECTORING_GAIN 1.0  // Gain for torque vectoring
+#define TORQUE_VECTORING_GAIN 0.75 // Gain for torque vectoring
 #define STEERING_POT_LEFT 0.56     // Left-most position of steering potentiometer
 #define STEERING_POT_RIGHT 4.09    // Right-most position of steering potentiometer
 

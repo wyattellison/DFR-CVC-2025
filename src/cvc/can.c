@@ -82,130 +82,258 @@ void CAN_Store_Data(uint32_t IDE, uint32_t id, uint64_t data64) {
         } else if (id == ((CAN_SENSORBOARD_BASE_11 + 0))) {
             // SENSORBOARD Data
             CAN_data[SENSORBOARD_Data] = data64;
-        } else if (id == ((CAN_INVERTER_BASE_ID1 + 0))) {
-            CAN_data[INVERTER1_Temp1] = data64;
-        } else if (id == ((CAN_INVERTER_BASE_ID1 + 1))) {
-            CAN_data[INVERTER1_Temp2] = data64;
-        } else if (id == ((CAN_INVERTER_BASE_ID1 + 2))) {
-            CAN_data[INVERTER1_Temp3TorqueShudder] = data64;
-        } else if (id == ((CAN_INVERTER_BASE_ID1 + 3))) {
-            CAN_data[INVERTER1_AnalogInputStatus] = data64;
-            Inverter1_Analog_Flag = true;
-        } else if (id == ((CAN_INVERTER_BASE_ID1 + 4))) {
-            CAN_data[INVERTER1_DigitalInputStatus] = data64;
-        } else if (id == ((CAN_INVERTER_BASE_ID1 + 5))) {
-            CAN_data[INVERTER1_MotorPositionParameters] = data64;
-        } else if (id == ((CAN_INVERTER_BASE_ID1 + 6))) {
-            CAN_data[INVERTER1_CurrentParameters] = data64;
-        } else if (id == ((CAN_INVERTER_BASE_ID1 + 7))) {
-            CAN_data[INVERTER1_VoltageParameters] = data64;
-        } else if (id == ((CAN_INVERTER_BASE_ID1 + 8))) {
-            CAN_data[INVERTER1_FluxParameters] = data64;
-        } else if (id == ((CAN_INVERTER_BASE_ID1 + 9))) {
-            CAN_data[INVERTER1_InternalVoltageParameters] = data64;
-        } else if (id == ((CAN_INVERTER_BASE_ID1 + 10))) {
-            CAN_data[INVERTER1_InternalStateParameters] = data64;
-        } else if (id == ((CAN_INVERTER_BASE_ID1 + 11))) {
-            CAN_data[INVERTER1_FaultCodes] = data64;
-        } else if (id == ((CAN_INVERTER_BASE_ID1 + 12))) {
-            CAN_data[INVERTER1_TorqueTimerParameters] = data64;
-        } else if (id == ((CAN_INVERTER_BASE_ID1 + 13))) {
-            CAN_data[INVERTER1_ModulationIndexFluxWeakening] = data64;
-        } else if (id == ((CAN_INVERTER_BASE_ID1 + 14))) {
-            CAN_data[INVERTER1_FirmwareInformation] = data64;
-        } else if (id == ((CAN_INVERTER_BASE_ID1 + 15))) {
-            CAN_data[INVERTER1_DiagnosticData] = data64;
-        } else if (id == ((CAN_INVERTER_BASE_ID1 + 16))) {
-            CAN_data[INVERTER1_HighSpeedParameters] = data64;
-            Inverter1_Position_Flag = true;
-        } else if (id == ((CAN_INVERTER_BASE_ID1 + 17))) {
-            CAN_data[INVERTER1_TorqueCapability] = data64;
-        } else if (id == ((CAN_INVERTER_BASE_ID2 + 0))) {
-            CAN_data[INVERTER2_Temp1] = data64;
-        } else if (id == ((CAN_INVERTER_BASE_ID2 + 1))) {
-            CAN_data[INVERTER2_Temp2] = data64;
-        } else if (id == ((CAN_INVERTER_BASE_ID2 + 2))) {
-            CAN_data[INVERTER2_Temp3TorqueShudder] = data64;
-        } else if (id == ((CAN_INVERTER_BASE_ID2 + 3))) {
-            CAN_data[INVERTER2_AnalogInputStatus] = data64;
-            Inverter2_Analog_Flag = true;
-        } else if (id == ((CAN_INVERTER_BASE_ID2 + 4))) {
-            CAN_data[INVERTER2_DigitalInputStatus] = data64;
-        } else if (id == ((CAN_INVERTER_BASE_ID2 + 5))) {
-            CAN_data[INVERTER2_MotorPositionParameters] = data64;
-        } else if (id == ((CAN_INVERTER_BASE_ID2 + 6))) {
-            CAN_data[INVERTER2_CurrentParameters] = data64;
-        } else if (id == ((CAN_INVERTER_BASE_ID2 + 7))) {
-            CAN_data[INVERTER2_VoltageParameters] = data64;
-        } else if (id == ((CAN_INVERTER_BASE_ID2 + 8))) {
-            CAN_data[INVERTER2_FluxParameters] = data64;
-        } else if (id == ((CAN_INVERTER_BASE_ID2 + 9))) {
-            CAN_data[INVERTER2_InternalVoltageParameters] = data64;
-        } else if (id == ((CAN_INVERTER_BASE_ID2 + 10))) {
-            CAN_data[INVERTER2_InternalStateParameters] = data64;
-        } else if (id == ((CAN_INVERTER_BASE_ID2 + 11))) {
-            CAN_data[INVERTER2_FaultCodes] = data64;
-        } else if (id == ((CAN_INVERTER_BASE_ID2 + 12))) {
-            CAN_data[INVERTER2_TorqueTimerParameters] = data64;
-        } else if (id == ((CAN_INVERTER_BASE_ID2 + 13))) {
-            CAN_data[INVERTER2_ModulationIndexFluxWeakening] = data64;
-        } else if (id == ((CAN_INVERTER_BASE_ID2 + 14))) {
-            CAN_data[INVERTER2_FirmwareInformation] = data64;
-        } else if (id == ((CAN_INVERTER_BASE_ID2 + 15))) {
-            CAN_data[INVERTER2_DiagnosticData] = data64;
-        } else if (id == ((CAN_INVERTER_BASE_ID2 + 16))) {
-            CAN_data[INVERTER2_HighSpeedParameters] = data64;
-            Inverter2_Position_Flag = true;
         }
+        if (!CAN_INVERTER_USE_EXT) {
+            if (id == ((CAN_INVERTER_BASE_ID1_11 + 0))) {
+                CAN_data[INVERTER1_Temp1] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID1_11 + 1))) {
+                CAN_data[INVERTER1_Temp2] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID1_11 + 2))) {
+                CAN_data[INVERTER1_Temp3TorqueShudder] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID1_11 + 3))) {
+                CAN_data[INVERTER1_AnalogInputStatus] = data64;
+                Inverter1_Analog_Flag = true;
+            } else if (id == ((CAN_INVERTER_BASE_ID1_11 + 4))) {
+                CAN_data[INVERTER1_DigitalInputStatus] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID1_11 + 5))) {
+                CAN_data[INVERTER1_MotorPositionParameters] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID1_11 + 6))) {
+                CAN_data[INVERTER1_CurrentParameters] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID1_11 + 7))) {
+                CAN_data[INVERTER1_VoltageParameters] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID1_11 + 8))) {
+                CAN_data[INVERTER1_FluxParameters] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID1_11 + 9))) {
+                CAN_data[INVERTER1_InternalVoltageParameters] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID1_11 + 10))) {
+                CAN_data[INVERTER1_InternalStateParameters] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID1_11 + 11))) {
+                CAN_data[INVERTER1_FaultCodes] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID1_11 + 12))) {
+                CAN_data[INVERTER1_TorqueTimerParameters] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID1_11 + 13))) {
+                CAN_data[INVERTER1_ModulationIndexFluxWeakening] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID1_11 + 14))) {
+                CAN_data[INVERTER1_FirmwareInformation] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID1_11 + 15))) {
+                CAN_data[INVERTER1_DiagnosticData] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID1_11 + 16))) {
+                CAN_data[INVERTER1_HighSpeedParameters] = data64;
+                Inverter1_Position_Flag = true;
+            } else if (id == ((CAN_INVERTER_BASE_ID1_11 + 17))) {
+                CAN_data[INVERTER1_TorqueCapability] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID2_11 + 0))) {
+                CAN_data[INVERTER2_Temp1] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID2_11 + 1))) {
+                CAN_data[INVERTER2_Temp2] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID2_11 + 2))) {
+                CAN_data[INVERTER2_Temp3TorqueShudder] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID2_11 + 3))) {
+                CAN_data[INVERTER2_AnalogInputStatus] = data64;
+                Inverter2_Analog_Flag = true;
+            } else if (id == ((CAN_INVERTER_BASE_ID2_11 + 4))) {
+                CAN_data[INVERTER2_DigitalInputStatus] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID2_11 + 5))) {
+                CAN_data[INVERTER2_MotorPositionParameters] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID2_11 + 6))) {
+                CAN_data[INVERTER2_CurrentParameters] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID2_11 + 7))) {
+                CAN_data[INVERTER2_VoltageParameters] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID2_11 + 8))) {
+                CAN_data[INVERTER2_FluxParameters] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID2_11 + 9))) {
+                CAN_data[INVERTER2_InternalVoltageParameters] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID2_11 + 10))) {
+                CAN_data[INVERTER2_InternalStateParameters] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID2_11 + 11))) {
+                CAN_data[INVERTER2_FaultCodes] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID2_11 + 12))) {
+                CAN_data[INVERTER2_TorqueTimerParameters] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID2_11 + 13))) {
+                CAN_data[INVERTER2_ModulationIndexFluxWeakening] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID2_11 + 14))) {
+                CAN_data[INVERTER2_FirmwareInformation] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID2_11 + 15))) {
+                CAN_data[INVERTER2_DiagnosticData] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID2_11 + 16))) {
+                CAN_data[INVERTER2_HighSpeedParameters] = data64;
+                Inverter2_Position_Flag = true;
+            }
+        }
+
+        if (!CAN_EMUS_USE_EXT) {
+            if (id == (CAN_EMUS_BASE_11 + 0x0000)) {
+                // EMUS BMS Overall Parameters - Byte 3 = 0x00 and Byte 4 = 0x00
+                CAN_data[EMUS_OverallParameters] = data64;
+            } else if (id == (CAN_EMUS_BASE_11 + 0x0007)) {
+                // EMUS BMS Diagnostic Codes - Byte 3 = 0x00 and Byte 4 = 0x07
+                CAN_data[EMUS_DiagnosticCodes] = data64;
+            } else if (id == (CAN_EMUS_BASE_11 + 0x0001)) {
+                // EMUS BMS Battery Voltage Overall Parameters - Byte 3 = 0x00 and Byte 4 = 0x01
+                CAN_data[EMUS_BatteryVoltageOverallParameters] = data64;
+            } else if (id == (CAN_EMUS_BASE_11 + 0x0002)) {
+                // EMUS BMS Cell Module Temperature Overall Parameters - Byte 3 = 0x00 and Byte 4 = 0x02
+                CAN_data[EMUS_CellModuleTemperatureOverallParameters] = data64;
+            } else if (id == (CAN_EMUS_BASE_11 + 0x0008)) {
+                // EMUS BMS Cell Temperature Overall Parameters - Byte 3 = 0x00 and Byte 4 = 0x08
+                CAN_data[EMUS_CellTemperatureOverallParameters] = data64;
+            } else if (id == (CAN_EMUS_BASE_11 + 0x0003)) {
+                // EMUS BMS Cell Balancing Rate Overall Parameters - Byte 3 = 0x00 and Byte 4 = 0x03
+                CAN_data[EMUS_CellBalancingRateOverallParameters] = data64;
+            } else if (id == (CAN_EMUS_BASE_11 + 0x0500)) {
+                // EMUS BMS State of Charge Parameters - Byte 3 = 0x05 and Byte 4 = 0x00
+                CAN_data[EMUS_StateOfChargeParameters] = data64;
+            } else if (id == (CAN_EMUS_BASE_11 + 0x0400)) {
+                // EMUS BMS Configuration Parameters - Byte 3 = 0x04 and Byte 4 = 0x00
+                CAN_data[EMUS_ConfigurationParameters] = data64;
+            } else if (id == (CAN_EMUS_BASE_11 + 0x0401)) {
+                // EMUS BMS Contactor Control - Byte 3 = 0x04 and Byte 4 = 0x01
+                CAN_data[EMUS_ContactorControl] = data64;
+            } else if (id == (CAN_EMUS_BASE_11 + 0x0600)) {
+                // EMUS BMS Energy Parameters - Byte 3 = 0x06 and Byte 4 = 0x00
+                CAN_data[EMUS_EnergyParameters] = data64;
+            } else if (id == (CAN_EMUS_BASE_11 + 0x0405)) {
+                // EMUS BMS Events - Byte 3 = 0x04 and Byte 4 = 0x05
+                CAN_data[EMUS_Events] = data64;
+            }
+        }
+
     } else {  // Extended message parsers
-        if (id == ((CAN_EMUS_BASE_29 << 16) | 0x0000)) {
-            // EMUS BMS Overall Parameters - Byte 3 = 0x00 and Byte 4 = 0x00
-            CAN_data[EMUS_OverallParameters] = data64;
-        } else if (id == ((CAN_EMUS_BASE_29 << 16) | 0x0007)) {
-            // EMUS BMS Diagnostic Codes - Byte 3 = 0x00 and Byte 4 = 0x07
-            CAN_data[EMUS_DiagnosticCodes] = data64;
-        } else if (id == ((CAN_EMUS_BASE_29 << 16) | 0x0001)) {
-            // EMUS BMS Battery Voltage Overall Parameters - Byte 3 = 0x00 and Byte 4 = 0x01
-            CAN_data[EMUS_BatteryVoltageOverallParameters] = data64;
-        } else if (id == ((CAN_EMUS_BASE_29 << 16) | 0x0002)) {
-            // EMUS BMS Cell Module Temperature Overall Parameters - Byte 3 = 0x00 and Byte 4 = 0x02
-            CAN_data[EMUS_CellModuleTemperatureOverallParameters] = data64;
-        } else if (id == ((CAN_EMUS_BASE_29 << 16) | 0x0008)) {
-            // EMUS BMS Cell Temperature Overall Parameters - Byte 3 = 0x00 and Byte 4 = 0x08
-            CAN_data[EMUS_CellTemperatureOverallParameters] = data64;
-        } else if (id == ((CAN_EMUS_BASE_29 << 16) | 0x0003)) {
-            // EMUS BMS Cell Balancing Rate Overall Parameters - Byte 3 = 0x00 and Byte 4 = 0x03
-            CAN_data[EMUS_CellBalancingRateOverallParameters] = data64;
-        } else if (id == ((CAN_EMUS_BASE_29 << 16) | 0x0500)) {
-            // EMUS BMS State of Charge Parameters - Byte 3 = 0x05 and Byte 4 = 0x00
-            CAN_data[EMUS_StateOfChargeParameters] = data64;
-        } else if (id == ((CAN_EMUS_BASE_29 << 16) | 0x0400)) {
-            // EMUS BMS Configuration Parameters - Byte 3 = 0x04 and Byte 4 = 0x00
-            CAN_data[EMUS_ConfigurationParameters] = data64;
-        } else if (id == ((CAN_EMUS_BASE_29 << 16) | 0x0401)) {
-            // EMUS BMS Contactor Control - Byte 3 = 0x04 and Byte 4 = 0x01
-            CAN_data[EMUS_ContactorControl] = data64;
-        } else if (id == ((CAN_EMUS_BASE_29 << 16) | 0x0600)) {
-            // EMUS BMS Energy Parameters - Byte 3 = 0x06 and Byte 4 = 0x00
-            CAN_data[EMUS_EnergyParameters] = data64;
-        } else if (id == ((CAN_EMUS_BASE_29 << 16) | 0x0405)) {
-            // EMUS BMS Events - Byte 3 = 0x04 and Byte 4 = 0x05
-            CAN_data[EMUS_Events] = data64;
-        } else if (id == ((CAN_VDM_BASE_29 << 16) | 0X0000)) {
-            // VDM GPS Latitude and Longitude - 0x0000A0000
-            CAN_data[VDM_GPSLatitudeLongitude] = data64;
-        } else if (id == ((CAN_VDM_BASE_29 << 16) | 0X0001)) {
-            // VDM GPS Data - 0x0000A0001
-            CAN_data[VDM_GPSData] = data64;
-        } else if (id == ((CAN_VDM_BASE_29 << 16) | 0X0002)) {
-            // VDM GPS Date and Time - 0x0000A0002
-            CAN_data[VDM_GPSDateTime] = data64;
-        } else if (id == ((CAN_VDM_BASE_29 << 16) | 0X0003)) {
-            // VDM Acceleration Data - 0x0000A0003
-            CAN_data[VDM_AccelerationData] = data64;
-        } else if (id == ((CAN_VDM_BASE_29 << 16) | 0X0004)) {
-            // VDM Yaw Rate Data - 0x0000A0004
-            CAN_data[VDM_YawRateData] = data64;
+        if (CAN_EMUS_USE_EXT) {
+            if (id == ((CAN_EMUS_BASE_29 << 16) | 0x0000)) {
+                // EMUS BMS Overall Parameters - Byte 3 = 0x00 and Byte 4 = 0x00
+                CAN_data[EMUS_OverallParameters] = data64;
+            } else if (id == ((CAN_EMUS_BASE_29 << 16) | 0x0007)) {
+                // EMUS BMS Diagnostic Codes - Byte 3 = 0x00 and Byte 4 = 0x07
+                CAN_data[EMUS_DiagnosticCodes] = data64;
+            } else if (id == ((CAN_EMUS_BASE_29 << 16) | 0x0001)) {
+                // EMUS BMS Battery Voltage Overall Parameters - Byte 3 = 0x00 and Byte 4 = 0x01
+                CAN_data[EMUS_BatteryVoltageOverallParameters] = data64;
+            } else if (id == ((CAN_EMUS_BASE_29 << 16) | 0x0002)) {
+                // EMUS BMS Cell Module Temperature Overall Parameters - Byte 3 = 0x00 and Byte 4 = 0x02
+                CAN_data[EMUS_CellModuleTemperatureOverallParameters] = data64;
+            } else if (id == ((CAN_EMUS_BASE_29 << 16) | 0x0008)) {
+                // EMUS BMS Cell Temperature Overall Parameters - Byte 3 = 0x00 and Byte 4 = 0x08
+                CAN_data[EMUS_CellTemperatureOverallParameters] = data64;
+            } else if (id == ((CAN_EMUS_BASE_29 << 16) | 0x0003)) {
+                // EMUS BMS Cell Balancing Rate Overall Parameters - Byte 3 = 0x00 and Byte 4 = 0x03
+                CAN_data[EMUS_CellBalancingRateOverallParameters] = data64;
+            } else if (id == ((CAN_EMUS_BASE_29 << 16) | 0x0500)) {
+                // EMUS BMS State of Charge Parameters - Byte 3 = 0x05 and Byte 4 = 0x00
+                CAN_data[EMUS_StateOfChargeParameters] = data64;
+            } else if (id == ((CAN_EMUS_BASE_29 << 16) | 0x0400)) {
+                // EMUS BMS Configuration Parameters - Byte 3 = 0x04 and Byte 4 = 0x00
+                CAN_data[EMUS_ConfigurationParameters] = data64;
+            } else if (id == ((CAN_EMUS_BASE_29 << 16) | 0x0401)) {
+                // EMUS BMS Contactor Control - Byte 3 = 0x04 and Byte 4 = 0x01
+                CAN_data[EMUS_ContactorControl] = data64;
+            } else if (id == ((CAN_EMUS_BASE_29 << 16) | 0x0600)) {
+                // EMUS BMS Energy Parameters - Byte 3 = 0x06 and Byte 4 = 0x00
+                CAN_data[EMUS_EnergyParameters] = data64;
+            } else if (id == ((CAN_EMUS_BASE_29 << 16) | 0x0405)) {
+                // EMUS BMS Events - Byte 3 = 0x04 and Byte 4 = 0x05
+                CAN_data[EMUS_Events] = data64;
+            }
+        }
+
+        if (CAN_VDM_USE_EXT) {
+            if (id == ((CAN_VDM_BASE_29 << 16) | 0X0000)) {
+                // VDM GPS Latitude and Longitude - 0x0000A0000
+                CAN_data[VDM_GPSLatitudeLongitude] = data64;
+            }
+            else if (id == ((CAN_VDM_BASE_29 << 16) | 0X0001)) {
+                // VDM GPS Data - 0x0000A0001
+                CAN_data[VDM_GPSData] = data64;
+            }
+            else if (id == ((CAN_VDM_BASE_29 << 16) | 0X0002)) {
+                // VDM GPS Date and Time - 0x0000A0002
+                CAN_data[VDM_GPSDateTime] = data64;
+            }
+            else if (id == ((CAN_VDM_BASE_29 << 16) | 0X0003)) {
+                // VDM Acceleration Data - 0x0000A0003
+                CAN_data[VDM_AccelerationData] = data64;
+            }
+            else if (id == ((CAN_VDM_BASE_29 << 16) | 0X0004)) {
+                // VDM Yaw Rate Data - 0x0000A0004
+                CAN_data[VDM_YawRateData] = data64;
+            }
+        }
+        if (CAN_INVERTER_USE_EXT) {
+            if (id == ((CAN_INVERTER_BASE_ID1_29 + 0))) {
+                CAN_data[INVERTER1_Temp1] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID1_29 + 1))) {
+                CAN_data[INVERTER1_Temp2] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID1_29 + 2))) {
+                CAN_data[INVERTER1_Temp3TorqueShudder] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID1_29 + 3))) {
+                CAN_data[INVERTER1_AnalogInputStatus] = data64;
+                Inverter1_Analog_Flag = true;
+            } else if (id == ((CAN_INVERTER_BASE_ID1_29 + 4))) {
+                CAN_data[INVERTER1_DigitalInputStatus] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID1_29 + 5))) {
+                CAN_data[INVERTER1_MotorPositionParameters] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID1_29 + 6))) {
+                CAN_data[INVERTER1_CurrentParameters] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID1_29 + 7))) {
+                CAN_data[INVERTER1_VoltageParameters] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID1_29 + 8))) {
+                CAN_data[INVERTER1_FluxParameters] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID1_29 + 9))) {
+                CAN_data[INVERTER1_InternalVoltageParameters] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID1_29 + 10))) {
+                CAN_data[INVERTER1_InternalStateParameters] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID1_29 + 11))) {
+                CAN_data[INVERTER1_FaultCodes] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID1_29 + 12))) {
+                CAN_data[INVERTER1_TorqueTimerParameters] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID1_29 + 13))) {
+                CAN_data[INVERTER1_ModulationIndexFluxWeakening] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID1_29 + 14))) {
+                CAN_data[INVERTER1_FirmwareInformation] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID1_29 + 15))) {
+                CAN_data[INVERTER1_DiagnosticData] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID1_29 + 16))) {
+                CAN_data[INVERTER1_HighSpeedParameters] = data64;
+                Inverter1_Position_Flag = true;
+            } else if (id == ((CAN_INVERTER_BASE_ID1_29 + 17))) {
+                CAN_data[INVERTER1_TorqueCapability] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID2_29 + 0))) {
+                CAN_data[INVERTER2_Temp1] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID2_29 + 1))) {
+                CAN_data[INVERTER2_Temp2] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID2_29 + 2))) {
+                CAN_data[INVERTER2_Temp3TorqueShudder] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID2_29 + 3))) {
+                CAN_data[INVERTER2_AnalogInputStatus] = data64;
+                Inverter2_Analog_Flag = true;
+            } else if (id == ((CAN_INVERTER_BASE_ID2_29 + 4))) {
+                CAN_data[INVERTER2_DigitalInputStatus] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID2_29 + 5))) {
+                CAN_data[INVERTER2_MotorPositionParameters] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID2_29 + 6))) {
+                CAN_data[INVERTER2_CurrentParameters] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID2_29 + 7))) {
+                CAN_data[INVERTER2_VoltageParameters] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID2_29 + 8))) {
+                CAN_data[INVERTER2_FluxParameters] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID2_29 + 9))) {
+                CAN_data[INVERTER2_InternalVoltageParameters] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID2_29 + 10))) {
+                CAN_data[INVERTER2_InternalStateParameters] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID2_29 + 11))) {
+                CAN_data[INVERTER2_FaultCodes] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID2_29 + 12))) {
+                CAN_data[INVERTER2_TorqueTimerParameters] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID2_29 + 13))) {
+                CAN_data[INVERTER2_ModulationIndexFluxWeakening] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID2_29 + 14))) {
+                CAN_data[INVERTER2_FirmwareInformation] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID2_29 + 15))) {
+                CAN_data[INVERTER2_DiagnosticData] = data64;
+            } else if (id == ((CAN_INVERTER_BASE_ID2_29 + 16))) {
+                CAN_data[INVERTER2_HighSpeedParameters] = data64;
+                Inverter2_Position_Flag = true;
+            }
         }
     }
 }

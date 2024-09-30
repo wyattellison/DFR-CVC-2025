@@ -117,7 +117,6 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    /* USER CODE END WHILE */
     // Get latest vehicle information
     Analog_ReadThrottle();
     Analog_ReadLV();
@@ -134,6 +133,7 @@ int main(void)
     Torque_SendTorque();
     CAN_Process_TX();
     Relay_Send();
+    /* USER CODE END WHILE */
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
