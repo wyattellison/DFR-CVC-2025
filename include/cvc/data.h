@@ -1,9 +1,9 @@
 /*
-* data.h
-*
-* Created on September 19, 2024
-* Andrei Gerashchenko
-*/
+ * data.h
+ *
+ * Created on September 19, 2024
+ * Andrei Gerashchenko
+ */
 #ifndef CVC_DATA_H
 #define CVC_DATA_H
 
@@ -74,22 +74,23 @@ typedef enum {
     CVC_THROTTLE_ADC,
     CVC_THROTTLE,
     CVC_THROTTLE_VALID,
-    CVC_DRIVE_MODE, // 0 = neutral, 1 = drive, 2 = reverse
-    CVC_STATE,
-    CVC_LV_VOLTAGE,
-    CVC_LEFT_TORQUE, // Left motor torque
-    CVC_RIGHT_TORQUE, // Right motor torque
-    CVC_LEFT_DIRECTION, // Left motor direction
-    CVC_RIGHT_DIRECTION, // Right motor direction
-    CVC_PRECHARGE_BTN, // Precharge button state
-    CVC_LV_CHARGE_STATE, // LV charge state
-    CVC_AIR_1_STATE, // Air 1 state
-    CVC_AIR_2_STATE, // Air 2 state
-    CVC_DCDC_STATE, // DCDC state
-    CVC_COCKPIT_BRB_STATE, // Cockpit BRB state
-    CVC_BOT_STATE, // BOT state
-    CVC_IMD_STATE, // IMD state
-    CVC_BMS_STATE, // BMS state
+    CVC_DRIVE_MODE,         // 0 = neutral, 1 = drive, 2 = reverse
+    CVC_STATE,              // vehicle_state_t (state machine state)
+    CVC_LV_VOLTAGE,         // Low voltage system voltage
+    CVC_LEFT_TORQUE,        // Left motor torque
+    CVC_RIGHT_TORQUE,       // Right motor torque
+    CVC_TORQUE_LIMIT,       // Undervoltage protection torque limit
+    CVC_LEFT_DIRECTION,     // Left motor direction
+    CVC_RIGHT_DIRECTION,    // Right motor direction
+    CVC_PRECHARGE_BTN,      // Precharge button state
+    CVC_LV_CHARGE_STATE,    // LV charge state
+    CVC_AIR_1_STATE,        // Air 1 state
+    CVC_AIR_2_STATE,        // Air 2 state
+    CVC_DCDC_STATE,         // DCDC state
+    CVC_COCKPIT_BRB_STATE,  // Cockpit BRB state
+    CVC_BOT_STATE,          // BOT state
+    CVC_IMD_STATE,          // IMD state
+    CVC_BMS_STATE,          // BMS state
     // === Front Sensor Board ==
     SENSOR_THROTTLE_ADC,
     SENSOR_STEERING_ANGLE,
@@ -97,8 +98,7 @@ typedef enum {
     SENSOR_RIGHT_WHEELSPEED,
     SENSOR_BRAKESWITCH,
     // === Dashboard ===
-    DASH_REQUESTED_STATE, // neutral, drive, reverse, none
-    DASH_SELECTOR_VALUE,
+    DASH_REQUESTED_STATE,  // 0 = neutral, 1 = drive, 2 = reverse
     // === EMUS BMS ===
     // Overall Parameters
     BMS_IGNITION,
@@ -168,21 +168,21 @@ typedef enum {
     BMS_DISTANCE_TRAVELED,
     // === AEM 30-22O6 VDM ===
     // GPS Data
-    VDM_GPS_LATITUDE, 
-    VDM_GPS_LONGITUDE, 
+    VDM_GPS_LATITUDE,
+    VDM_GPS_LONGITUDE,
     VDM_GPS_SPEED,
-    VDM_GPS_ALTITUDE, 
-    VDM_GPS_TRUE_COURSE, 
-    VDM_GPS_SATELLITES_IN_USE, 
+    VDM_GPS_ALTITUDE,
+    VDM_GPS_TRUE_COURSE,
+    VDM_GPS_SATELLITES_IN_USE,
     VDM_GPS_DATA_VALID,
     // GPS Date Time Parameters
-    VDM_GPS_DATE_TIME_VALID, 
-    VDM_UTC_YEAR, 
+    VDM_GPS_DATE_TIME_VALID,
+    VDM_UTC_YEAR,
     VDM_UTC_MONTH,
     VDM_UTC_DAY,
     VDM_UTC_HOUR,
     VDM_UTC_MINUTE,
-    VDM_UTC_SECOND, 
+    VDM_UTC_SECOND,
     // Acceleration data
     VDM_ACCELERATION_X,
     VDM_ACCELERATION_Y,
@@ -193,13 +193,12 @@ typedef enum {
     VDM_YAW_RATE_Z,
     // Events - TODO: Figure out how to handle this
 
-
     // === Inverter ===
     //  Temperature Parameters
     INVERTER1_POWER_MODULE_A_TEMP,
     INVERTER1_POWER_MODULE_B_TEMP,
     INVERTER1_POWER_MODULE_C_TEMP,
-    INVERTER1_GATE_DRIVER_BOARD_TEMP, 
+    INVERTER1_GATE_DRIVER_BOARD_TEMP,
     INVERTER1_CONTROL_BOARD_TEMP,
     INVERTER1_RTD_INPUT_1_TEMP,
     INVERTER1_RTD_INPUT_2_TEMP,
@@ -210,7 +209,7 @@ typedef enum {
     INVERTER2_POWER_MODULE_A_TEMP,
     INVERTER2_POWER_MODULE_B_TEMP,
     INVERTER2_POWER_MODULE_C_TEMP,
-    INVERTER2_GATE_DRIVER_BOARD_TEMP, 
+    INVERTER2_GATE_DRIVER_BOARD_TEMP,
     INVERTER2_CONTROL_BOARD_TEMP,
     INVERTER2_RTD_INPUT_1_TEMP,
     INVERTER2_RTD_INPUT_2_TEMP,
@@ -250,12 +249,12 @@ typedef enum {
     INVERTER2_START_SWITCH,
     INVERTER2_VALET_MODE,
     // Motor Position Parameters
-    INVERTER1_MOTOR_ANGLE, 
+    INVERTER1_MOTOR_ANGLE,
     INVERTER1_MOTOR_SPEED,
     INVERTER1_MOTOR_ACCELERATION,
     INVERTER1_ELECTRICAL_OUTPUT_FREQUENCY,
     INVERTER1_DELTA_RESOLVER_FILTERED,
-    INVERTER2_MOTOR_ANGLE, 
+    INVERTER2_MOTOR_ANGLE,
     INVERTER2_MOTOR_SPEED,
     INVERTER2_MOTOR_ACCELERATION,
     INVERTER2_ELECTRICAL_OUTPUT_FREQUENCY,
@@ -271,20 +270,20 @@ typedef enum {
     INVERTER2_DC_BUS_CURRENT,
     // Voltage Parameters
     INVERTER1_DC_BUS_VOLTAGE,
-    INVERTER1_OUTPUT_VOLTAGE, 
+    INVERTER1_OUTPUT_VOLTAGE,
     INVERTER1_VAB_VD_VOLTAGE,
     INVERTER1_VAB_VQ_VOLTAGE,
     INVERTER2_DC_BUS_VOLTAGE,
-    INVERTER2_OUTPUT_VOLTAGE, 
+    INVERTER2_OUTPUT_VOLTAGE,
     INVERTER2_VAB_VD_VOLTAGE,
     INVERTER2_VAB_VQ_VOLTAGE,
     // Flux Parameters
     INVERTER1_FLUX_COMMAND,
-    INVERTER1_FLUX_FEEDBACK, 
+    INVERTER1_FLUX_FEEDBACK,
     INVERTER1_ID_CURRENT,
     INVERTER1_IQ_CURRENT,
     INVERTER2_FLUX_COMMAND,
-    INVERTER2_FLUX_FEEDBACK, 
+    INVERTER2_FLUX_FEEDBACK,
     INVERTER2_ID_CURRENT,
     INVERTER2_IQ_CURRENT,
     // Internal Voltage Parameters
@@ -351,12 +350,12 @@ typedef enum {
     INVERTER2_LIMIT_STALL_BURST_MODEL,
     // Fault codes
     INVERTER1_POST_FAULT_LO,
-    INVERTER1_POST_FAULT_HI, 
-    INVERTER1_RUN_FAULT_LO, 
+    INVERTER1_POST_FAULT_HI,
+    INVERTER1_RUN_FAULT_LO,
     INVERTER1_RUN_FAULT_HI,
     INVERTER2_POST_FAULT_LO,
-    INVERTER2_POST_FAULT_HI, 
-    INVERTER2_RUN_FAULT_LO, 
+    INVERTER2_POST_FAULT_HI,
+    INVERTER2_RUN_FAULT_LO,
     INVERTER2_RUN_FAULT_HI,
     // High Speed Parameters
     INVERTER1_TORQUE_COMMAND_HS,
@@ -384,4 +383,4 @@ extern volatile uint64_t CAN_data[NUM_MESSAGES];
 // Data stored as single 64-bit integer
 extern volatile uint64_t CVC_data[NUM_DATA_VALUES];
 
-#endif // CVC_DATA_H
+#endif  // CVC_DATA_H

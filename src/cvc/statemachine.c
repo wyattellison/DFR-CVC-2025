@@ -17,17 +17,19 @@ void CVC_StateMachine() {
     CAN_Parse_EMUS_BatteryVoltageOverallParameters();  // HV battery voltage
     CAN_Parse_Inverter_VoltageParameters(0);           // Inverter 1 voltage - Fast message
     CAN_Parse_Inverter_VoltageParameters(1);           // Inverter 2 voltage - Fast message
+    CAN_Parse_Dashboard();                             // Dashboard state
 
     volatile vehicle_state_t state = CVC_data[CVC_STATE];
     volatile drive_state_t drive_mode = NEUTRAL;
+    volatile drive_state_t requested_drive_mode = CVC_data[DASH_REQUESTED_STATE];
     volatile bool air2 = false;
     volatile bool buzzer = false;
     volatile bool battery_fans = false;
     volatile bool pumps = false;
 
     volatile float HV_voltage = CVC_data[BMS_TOTAL_VOLTAGE] * 0.01;
-    volatile float Inverter1_voltage = (float)((int16_t)CVC_data[INVERTER1_DC_BUS_VOLTAGE]) * 0.1; // Fast message
-    volatile float Inverter2_voltage = (float)((int16_t)CVC_data[INVERTER1_DC_BUS_VOLTAGE]) * 0.1; // Fast message
+    volatile float Inverter1_voltage = (float)((int16_t)CVC_data[INVERTER1_DC_BUS_VOLTAGE]) * 0.1;  // Fast message
+    volatile float Inverter2_voltage = (float)((int16_t)CVC_data[INVERTER1_DC_BUS_VOLTAGE]) * 0.1;  // Fast message
     volatile float throttle = (float)((uint16_t)CVC_data[CVC_THROTTLE]) * 0.01;
     volatile bool charging = CVC_data[BMS_CHARGING_STATE] > 0;
 
@@ -35,6 +37,13 @@ void CVC_StateMachine() {
     static volatile uint32_t precharge_start_time = 0;
     static volatile uint32_t contactor_close_time = 0;
     static volatile uint32_t buzzer_start_time = 0;
+
+    // Drive lockout
+    static volatile bool drive_lockout = true;
+
+    if (requested_drive_mode == NEUTRAL) {
+        drive_lockout = false;
+    }
 
     // Drive mode always becomes neutral unless otherwise specified
     // Second AIR always open unless otherwise specified
@@ -104,13 +113,19 @@ void CVC_StateMachine() {
             }
 
             // TODO: Implement wait for drive button press
-
-            // Check if throttle is valid and not pressed
-            if (CVC_data[CVC_THROTTLE_VALID] && throttle <= MIN_RTD_THROTTLE) {
-                state = BUZZER;  // Start buzzer
-                buzzer_start_time = HAL_GetTick();
+            if (!drive_lockout && (requested_drive_mode == DRIVE || requested_drive_mode == REVERSE)) {
+                // Check if throttle is valid and not pressed
+                if (CVC_data[CVC_THROTTLE_VALID] && throttle <= MIN_RTD_THROTTLE) {
+                    state = BUZZER;  // Start buzzer
+                    buzzer_start_time = HAL_GetTick();
+                    drive_lockout = true;
+                } else {
+                    state = NOT_READY_TO_DRIVE;
+                    drive_lockout = true;
+                }
+            } else {
+                state = NOT_READY_TO_DRIVE;
             }
-
             break;
         case BUZZER:  // Buzzer needs to be on for some time before ready to drive
             // Check if second contactor should be open
@@ -126,6 +141,7 @@ void CVC_StateMachine() {
             if (charging) {
                 state = NOT_READY_TO_DRIVE;
                 buzzer = false;
+
                 break;
             }
 
@@ -150,31 +166,26 @@ void CVC_StateMachine() {
             // Check if vehicle is charging
             if (charging) {
                 state = NOT_READY_TO_DRIVE;
+
                 break;
             }
 
             // Check if throttle is invalid
             if (!CVC_data[CVC_THROTTLE_VALID]) {
                 state = WAIT_FOR_PRECHARGE;
+
                 break;
             }
 
-            drive_mode = DRIVE;
-            pumps = true;
-            // if (requested_drive_mode) == NEUTRAL) {
-            //     state = NOT_READY_TO_DRIVE;
-            //     drive_mode = NEUTRAL;
-            // } else if (requested_drive_mode == DRIVE) {
-            //     drive_mode = DRIVE;
-            //     pumps = true;
-            // } else if (requested_drive_mode == REVERSE) {
-            //     drive_mode = REVERSE;
-            //     pumps = true;
-            // } else {
-            //     state = WAIT_FOR_PRECHARGE;
-            //     drive_mode = NEUTRAL;
-            // }
-
+            if (requested_drive_mode == NEUTRAL) {
+                state = NOT_READY_TO_DRIVE;
+            } else if (requested_drive_mode == DRIVE) {
+                drive_mode = DRIVE;
+                pumps = true;
+            } else if (requested_drive_mode == REVERSE) {
+                drive_mode = REVERSE;
+                pumps = true;
+            }
             break;
         default:
             state = WAIT_FOR_PRECHARGE;

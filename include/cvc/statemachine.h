@@ -7,7 +7,7 @@
 #ifndef CVC_STATEMACHINE_H
 #define CVC_STATEMACHINE_H
 
-#define ENABLE_BUZZER 0
+#define ENABLE_BUZZER 1
 #define BUZZER_TIME 1000      // Time in milliseconds for buzzer
 
 // Precharge constants
