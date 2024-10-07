@@ -124,12 +124,14 @@ int main(void)
     CAN_Process_RX();
 
     // Use new data to make vehicle control decisions
+    Torque_CalculateAvailableTorque();
     Throttle_ProcessThrottle();
     CVC_StateMachine();
     Torque_CalculateAcceleration();
     Torque_CalculateTorque();
 
     // Send CVC data to rest of vehicle
+    CAN_BroadcastSafety();
     Torque_SendTorque();
     CAN_Process_TX();
     Relay_Send();

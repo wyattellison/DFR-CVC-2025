@@ -7,9 +7,9 @@
 
 #include <cvc/can.h>
 #include <cvc/data.h>
+#include <cvc/parse.h>
 #include <cvc/statemachine.h>
 #include <cvc/torque.h>
-#include <cvc/parse.h>
 #include <main.h>
 #include <stdbool.h>
 
@@ -30,8 +30,8 @@ void Torque_CalculateAcceleration() {
         uint32_t now = HAL_GetTick();
         int16_t speed = (int16_t)CVC_data[INVERTER1_MOTOR_SPEED_HS];
         // uint32_t time_diff = now - last_time_1; // ms
-        uint32_t time_diff = 3; // ms, hardcoded for now
-        int16_t speed_diff = speed - last_speed_1; // RPM
+        uint32_t time_diff = 3;                     // ms, hardcoded for now
+        int16_t speed_diff = speed - last_speed_1;  // RPM
 
         if (time_diff == 0) {
             return;
@@ -58,8 +58,8 @@ void Torque_CalculateAcceleration() {
         uint32_t now = HAL_GetTick();
         int16_t speed = (int16_t)CVC_data[INVERTER2_MOTOR_SPEED_HS];
         // uint32_t time_diff = now - last_time_2; // ms
-        uint32_t time_diff = 3; // ms, hardcoded for now
-        int16_t speed_diff = speed - last_speed_2; // RPM
+        uint32_t time_diff = 3;                     // ms, hardcoded for now
+        int16_t speed_diff = speed - last_speed_2;  // RPM
 
         if (time_diff == 0) {
             return;
@@ -79,7 +79,48 @@ void Torque_CalculateAcceleration() {
         last_time_2 = now;
         last_speed_2 = speed;
         Inverter2_Position_Flag = 0;
-    }   
+    }
+}
+
+void Torque_CalculateAvailableTorque() {
+    CAN_Parse_Inverter_VoltageParameters(0);
+    CAN_Parse_Inverter_VoltageParameters(1);
+    CAN_Parse_Inverter_MotorPositionParameters(0);
+    CAN_Parse_Inverter_MotorPositionParameters(1);
+
+    // Get average DC bus voltage
+    volatile float bus_voltage;
+    volatile float Inverter1_voltage = (float)((int16_t)CVC_data[INVERTER1_DC_BUS_VOLTAGE]) * 0.1;  // Fast message
+    volatile float Inverter2_voltage = (float)((int16_t)CVC_data[INVERTER1_DC_BUS_VOLTAGE]) * 0.1;  // Fast message
+    volatile int16_t Inverter1_rpm = (int16_t)CVC_data[INVERTER1_MOTOR_SPEED];
+    volatile int16_t Inverter2_rpm = (int16_t)CVC_data[INVERTER2_MOTOR_SPEED];
+
+    // Fix sign of motor speed
+    if (CVC_data[CVC_DRIVE_MODE] == DRIVE) {
+        Inverter1_rpm *= -1;
+    } else if (CVC_data[CVC_DRIVE_MODE] == REVERSE) {
+        Inverter2_rpm *= -1;
+    }
+
+    volatile int16_t wheel_speed = (Inverter1_rpm / 2 + Inverter2_rpm / 2);
+    volatile int16_t max_torque;
+    bus_voltage = (Inverter1_voltage + Inverter2_voltage) / 2;
+
+    if (wheel_speed >= 1) {
+        volatile float battery_power = bus_voltage * BATTERY_CURRENT_LIMIT;
+        volatile float wheel_rads = (float)wheel_speed * UNDERVOLTAGE_SCALING_FACTOR;
+        volatile float max_torque_float = battery_power / wheel_rads;
+        max_torque = (int16_t)max_torque_float;
+    } else {
+        max_torque = NOMINAL_TORQUE * (TORQUE_LIMIT / 100.0);
+    }
+
+    if (max_torque > NOMINAL_TORQUE) {
+        max_torque = NOMINAL_TORQUE;
+    } else if (max_torque < 0) {
+        max_torque = 0;
+    }
+    CVC_data[CVC_TORQUE_LIMIT] = max_torque;
 }
 
 void Torque_CalculateTorque() {
@@ -93,8 +134,15 @@ void Torque_CalculateTorque() {
 
     volatile float throttle = (float)((uint16_t)CVC_data[CVC_THROTTLE]) * 0.01;
     volatile bool throttle_valid = CVC_data[CVC_THROTTLE_VALID];
-    volatile float left_accel = -1 * (float)((int64_t)CVC_data[INVERTER1_MOTOR_ACCELERATION]) / ACCEL_INT_FLOAT_SCALING;
+    volatile float left_accel = (float)((int64_t)CVC_data[INVERTER1_MOTOR_ACCELERATION]) / ACCEL_INT_FLOAT_SCALING;
     volatile float right_accel = (float)((int64_t)CVC_data[INVERTER2_MOTOR_ACCELERATION]) / ACCEL_INT_FLOAT_SCALING;
+
+    if (CVC_data[CVC_DRIVE_MODE] == DRIVE) {
+        left_accel *= -1;
+    } else if (CVC_data[CVC_DRIVE_MODE] == REVERSE) {
+        right_accel *= -1;
+    }
+
     volatile float steering_voltage = (float)((int32_t)CVC_data[INVERTER1_ANALOG_INPUT_1]) * 0.01;
     volatile float steering_angle = 2 * (steering_voltage - STEERING_POT_LEFT) / (STEERING_POT_RIGHT - STEERING_POT_LEFT) - 1;
     volatile int16_t torque = 0;
@@ -102,6 +150,7 @@ void Torque_CalculateTorque() {
     volatile int16_t right_torque = 0;
     volatile uint8_t left_direction = 0;
     volatile uint8_t right_direction = 1;
+    volatile int16_t max_torque = (int16_t)(CVC_data[CVC_TORQUE_LIMIT]);
 
     // Clamp steering angle to -1 to 1
     if (steering_angle > 1) {
@@ -116,13 +165,13 @@ void Torque_CalculateTorque() {
     } else {
         if (CVC_data[CVC_DRIVE_MODE] == DRIVE) {
             // Calculate torque for drive mode
-            torque = (int16_t)(NOMINAL_TORQUE * 10 * (TORQUE_LIMIT / 100.0) * throttle);    
+            torque = (int16_t)(max_torque * 10 * throttle);
 
             // Torque vectoring
-            if (steering_angle < 0) { // Left turn
+            if (steering_angle < 0) {  // Left turn
                 left_torque = torque + (int16_t)(TORQUE_VECTORING_GAIN * torque * steering_angle);
                 right_torque = torque;
-            } else { // Right turn
+            } else {  // Right turn
                 left_torque = torque;
                 right_torque = torque - (int16_t)(TORQUE_VECTORING_GAIN * torque * steering_angle);
             }
@@ -141,23 +190,23 @@ void Torque_CalculateTorque() {
             right_direction = 1;
         } else if (CVC_data[CVC_DRIVE_MODE] == REVERSE) {
             // Calculate torque for reverse mode
-            torque = (int16_t)(NOMINAL_TORQUE * 10 * (TORQUE_LIMIT / 100.0) * throttle);
+            torque = (int16_t)(max_torque * 10 * (throttle * (REVERSE_TORQUE_LIMIT / 100.0)));
             left_torque = torque;
             right_torque = torque;
             left_direction = 1;
             right_direction = 0;
         }
     }
-    
+
     if (left_torque > NOMINAL_TORQUE * 10) {
         left_torque = NOMINAL_TORQUE * 10;
-    } else if (left_torque < 0) { // Assumes no regen for now, regen requires opposing torque value
+    } else if (left_torque < 0) {  // Assumes no regen for now, regen requires opposing torque value
         left_torque = 0;
     }
 
     if (right_torque > NOMINAL_TORQUE * 10) {
         right_torque = NOMINAL_TORQUE * 10;
-    } else if (right_torque < 0) { // Assumes no regen for now, regen requires opposing torque value
+    } else if (right_torque < 0) {  // Assumes no regen for now, regen requires opposing torque value
         right_torque = 0;
     }
 
@@ -221,6 +270,44 @@ void Torque_SendTorque() {
             right_command.data[6] = 0;
             left_command.data[7] = 0;
             right_command.data[7] = 0;
+        } else if (CVC_data[CVC_DRIVE_MODE] == REVERSE) {
+            // Bytes 0-1: Torque command (-32768 to 32767) Nm/10 [0, 1]
+            left_command.data[0] = CVC_data[CVC_LEFT_TORQUE] & 0xFF;
+            right_command.data[0] = CVC_data[CVC_RIGHT_TORQUE] & 0xFF;
+            left_command.data[1] = (CVC_data[CVC_LEFT_TORQUE] >> 8) & 0xFF;
+            right_command.data[1] = (CVC_data[CVC_RIGHT_TORQUE] >> 8) & 0xFF;
+
+            // Bytes 2-3: Speed command (-32768 to 32767) RPM [2, 3]
+            left_command.data[2] = 0;
+            right_command.data[2] = 0;
+            left_command.data[3] = 0;
+            right_command.data[3] = 0;
+
+            // Byte 4: Direction (0 = reverse, 1 = forward) [4]
+            left_command.data[4] = (uint8_t)CVC_data[CVC_LEFT_DIRECTION];
+            right_command.data[4] = (uint8_t)CVC_data[CVC_RIGHT_DIRECTION];
+
+            // Byte 5 bit 0: Inverter enable (0 = disable, 1 = enable) [5]
+            // Byte 5 bit 1: Inverter discharge (0 = disable, 1 = enable) [5]
+            // Byte 5 bit 2: Speed mode enable (0 = disable, 1 = enable) [5]
+            if (DISABLE_ON_ZERO_THROTTLE) {
+                if ((float)((uint16_t)CVC_data[CVC_THROTTLE]) * 0.01 > 0.0) {
+                    left_command.data[5] = 0x01;   // Inverter enabled, discharge disabled, speed mode disabled
+                    right_command.data[5] = 0x01;  // Inverter enabled, discharge disabled, speed mode disabled
+                } else {
+                    left_command.data[5] = 0x00;   // Inverter disabled, discharge disabled, speed mode disabled
+                    right_command.data[5] = 0x00;  // Inverter disabled, discharge disabled, speed mode disabled
+                }
+            } else {
+                left_command.data[5] = 0x01;   // Inverter enabled, discharge disabled, speed mode disabled
+                right_command.data[5] = 0x01;  // Inverter enabled, discharge disabled, speed mode disabled
+            }
+
+            // Bytes 6-7: Torque limit (-32768 to 32767) Nm/10 [6, 7]
+            left_command.data[6] = 0;
+            right_command.data[6] = 0;
+            left_command.data[7] = 0;
+            right_command.data[7] = 0;
         }
     }
 
@@ -242,6 +329,10 @@ void Torque_SendTorque() {
         right_command.Tx_header.StdId = CAN_INVERTER_BASE_ID2_11 + 32;
     }
 
-    CAN_Queue_TX(&left_command);
-    CAN_Queue_TX(&right_command);
+    if (LEFT_MOTOR_ENABLE) {
+        CAN_Queue_TX(&left_command);
+    }
+    if (RIGHT_MOTOR_ENABLE) {
+        CAN_Queue_TX(&right_command);
+    }
 }

@@ -76,7 +76,7 @@ void CAN_Queue_TX(CAN_Queue_Frame_t *tx_frame) {
 
 void CAN_Store_Data(uint32_t IDE, uint32_t id, uint64_t data64) {
     if (IDE == CAN_ID_STD) {  // Standard message parsers
-        if (id == ((CAN_DASHBOARD_BASE_11 + 0))) {
+        if (id == ((CAN_DASHBOARD_BASE_11))) {
             // DASHBOARD Selector
             CAN_data[DASHBOARD_Selector] = data64;
         } else if (id == ((CAN_SENSORBOARD_BASE_11 + 0))) {
@@ -336,4 +336,27 @@ void CAN_Store_Data(uint32_t IDE, uint32_t id, uint64_t data64) {
             }
         }
     }
+}
+
+void CAN_BroadcastSafety() {
+    static uint32_t last = 0;
+    if (HAL_GetTick() - last < CAN_SAFETYBROADCAST_INTERVAL) {
+        return;
+    }
+    last = HAL_GetTick();
+
+    CAN_Queue_Frame_t tx_frame;
+    tx_frame.Tx_header.IDE = CAN_ID_STD;
+    tx_frame.Tx_header.StdId = CAN_DASHBOARD_BASE_11 + 0;
+    tx_frame.Tx_header.RTR = CAN_RTR_DATA;
+    tx_frame.Tx_header.DLC = 8;
+    tx_frame.data[0] = CVC_data[CVC_BMS_STATE];
+    tx_frame.data[1] = CVC_data[CVC_IMD_STATE];
+    tx_frame.data[2] = CVC_data[CVC_DRIVE_MODE];
+    tx_frame.data[3] = CVC_data[CVC_BOT_STATE];
+    tx_frame.data[4] = CVC_data[CVC_COCKPIT_BRB_STATE];
+    tx_frame.data[5] = 0;
+    tx_frame.data[6] = 0;
+    tx_frame.data[7] = 0;
+    CAN_Queue_TX(&tx_frame);
 }
