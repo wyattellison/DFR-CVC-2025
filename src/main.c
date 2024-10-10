@@ -346,7 +346,7 @@ static void MX_CAN1_Init(void)
     filter.FilterIdLow = 0x0000;
     filter.FilterMaskIdHigh = 0x0000;
     filter.FilterMaskIdLow = 0x0000;
-    filter.FilterFIFOAssignment = CAN_RX_FIFO0;
+    filter.FilterFIFOAssignment = CAN_RX_FIFO0 | CAN_RX_FIFO1;
     filter.FilterActivation = ENABLE;
     filter.SlaveStartFilterBank = 14;
     if (HAL_CAN_ConfigFilter(&hcan1, &filter) != HAL_OK) {
@@ -361,6 +361,10 @@ static void MX_CAN1_Init(void)
 
     // Activate CAN RX notification
     if (HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING) != HAL_OK) {
+        // Notification Error
+        Error_Handler();
+    }
+    if (HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO1_MSG_PENDING) != HAL_OK) {
         // Notification Error
         Error_Handler();
     }

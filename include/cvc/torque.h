@@ -20,14 +20,17 @@
 #define RIGHT_MOTOR_ENABLE 1  // Right motor enable bit
 
 #define TORQUE_VECTORING_GAIN 0.25  // Gain for torque vectoring
-#define STEERING_POT_LEFT 0.56      // Left-most position of steering potentiometer
-#define STEERING_POT_RIGHT 4.09     // Right-most position of steering potentiometer
+#define STEERING_POT_LEFT 0.50      // Left-most position of steering potentiometer
+#define STEERING_POT_RIGHT 4.10     // Right-most position of steering potentiometer
 
 #define ACCEL_INT_FLOAT_SCALING 10000     // Scaling factor for acceleration values
 #define TRACTION_CONTROL_MAX_ACCEL 0.351  // Maximum acceleration in RPM/ms
 #define TRACTION_CONTROL_GAIN 0.0         // Gain for traction control
 
 #define BATTERY_CURRENT_LIMIT 100.0               // Amps
+#define BATTERY_INTERNAL_RESISTANCE 0.013         // Ohms
+#define BATTERY_CELLS_PARALLEL 12                 // Number of cells in parallel
+#define BATTERY_CELLS_SERIES 60                   // Number of cells in series
 #define UNDERVOLTAGE_SCALING_FACTOR 0.1047197551  // 2 * pi / 60
 
 void Torque_CalculateAcceleration(void);

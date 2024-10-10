@@ -11,7 +11,8 @@
 #include <stdint.h>
 #include <stm32f7xx_hal_can.h>
 
-#define CAN_BUFFER_LENGTH 32
+#define CAN_BUFFER_LENGTH 64
+#define CAN_MAX_SEND_TIME 10 // ms
 
 #define CAN_EMUS_USE_EXT 0       // 1 if using extended IDs, 0 if using standard IDs
 #define CAN_EMUS_BASE_29 0x19B5  // Base ID for EMUS BMS 29-bit IDs

@@ -27,11 +27,33 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
     uint16_t next_head = (CANRxBuffer.head + 1) % CAN_BUFFER_LENGTH;
     if (next_head != CANRxBuffer.tail) {  // Check for buffer full condition
         if (HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &rx_frame.Rx_header, rx_frame.data) == HAL_OK) {
+            __disable_irq();
             CANRxBuffer.buffer[CANRxBuffer.head] = rx_frame;
             CANRxBuffer.head = next_head;
+            __enable_irq();
         }
     } else {
         CANRxOverflow = true;
+        // Drop frame
+        HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &rx_frame.Rx_header, rx_frame.data);
+    }
+}
+
+// CAN receive interrupt, stores received frame in receive FIFO
+void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan) {
+    CAN_Queue_Frame_t rx_frame;
+    uint16_t next_head = (CANRxBuffer.head + 1) % CAN_BUFFER_LENGTH;
+    if (next_head != CANRxBuffer.tail) {  // Check for buffer full condition
+        if (HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO1, &rx_frame.Rx_header, rx_frame.data) == HAL_OK) {
+            __disable_irq();
+            CANRxBuffer.buffer[CANRxBuffer.head] = rx_frame;
+            CANRxBuffer.head = next_head;
+            __enable_irq();
+        }
+    } else {
+        CANRxOverflow = true;
+        // Drop frame
+        HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO1, &rx_frame.Rx_header, rx_frame.data);
     }
 }
 
@@ -39,13 +61,24 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
 // Empties receive FIFO when called
 void CAN_Process_RX() {
     CAN_Queue_Frame_t rx_frame;
+    CAN_Queue_Frame_t tempbuffer[CAN_BUFFER_LENGTH];
+    uint32_t count = 0;
+
     __disable_irq();
-    while (CANRxBuffer.head != CANRxBuffer.tail) {
-        rx_frame = CANRxBuffer.buffer[CANRxBuffer.tail];
+    while (CANRxBuffer.head != CANRxBuffer.tail  && count < CAN_BUFFER_LENGTH) {
+        tempbuffer[count] = CANRxBuffer.buffer[CANRxBuffer.tail];
         CANRxBuffer.tail = (CANRxBuffer.tail + 1) % CAN_BUFFER_LENGTH;
+        count++;
+    }
+    __enable_irq();
+
+    CVC_data[CVC_RX_QUEUE_SIZE] = count;
+
+    for (uint32_t i = 0; i < count; i++) {
+        rx_frame = tempbuffer[i];
         uint64_t data64 = 0;
-        for (int i = 0; i < 8; i++) {
-            data64 |= (uint64_t)rx_frame.data[i] << (i * 8);
+        for (uint32_t j = 0; j < 8; j++) {
+            data64 |= (uint64_t)rx_frame.data[j] << (j * 8);
         }
         if (rx_frame.Rx_header.IDE == CAN_ID_STD) {
             CAN_Store_Data(rx_frame.Rx_header.IDE, rx_frame.Rx_header.StdId, data64);
@@ -53,11 +86,12 @@ void CAN_Process_RX() {
             CAN_Store_Data(rx_frame.Rx_header.IDE, rx_frame.Rx_header.ExtId, data64);
         }
     }
-    __enable_irq();
 }
 
 void CAN_Process_TX() {
     CAN_Queue_Frame_t tx_frame;
+    static uint32_t last_send = 0;
+    bool send_timer = false;
     while (CANTxBuffer.head != CANTxBuffer.tail) {
         tx_frame = CANTxBuffer.buffer[CANTxBuffer.tail];
 
@@ -65,6 +99,19 @@ void CAN_Process_TX() {
             uint32_t tx_mailbox;
             HAL_CAN_AddTxMessage(&hcan1, &tx_frame.Tx_header, tx_frame.data, &tx_mailbox);
             CANTxBuffer.tail = (CANTxBuffer.tail + 1) % CAN_BUFFER_LENGTH;
+            send_timer = false;
+            last_send = HAL_GetTick();
+        } else {
+            if (!send_timer) {
+                send_timer = true;
+            } else if (HAL_GetTick() - last_send > CAN_MAX_SEND_TIME) {
+                // Dump message if it's been in the queue too long
+                CANTxBuffer.tail = (CANTxBuffer.tail + 1) % CAN_BUFFER_LENGTH;
+                send_timer = false;
+                last_send = HAL_GetTick();
+                // Clear TX mailboxes
+                HAL_CAN_AbortTxRequest(&hcan1, CAN_TX_MAILBOX0 | CAN_TX_MAILBOX1 | CAN_TX_MAILBOX2);
+            }
         }
     }
 }
@@ -455,7 +502,8 @@ void CAN_BroadcastSafety() {
     tx_frame.data[4] = CVC_data[CVC_BOT_STATE];
     tx_frame.data[5] = CVC_data[CVC_COCKPIT_BRB_STATE];
     tx_frame.data[6] = CANRxOverflow;
-    tx_frame.data[7] = CVC_data[CVC_MAIN_LOOP_TIME];
+    // tx_frame.data[7] = CVC_data[CVC_MAIN_LOOP_TIME];
+    tx_frame.data[7] = CVC_data[CVC_RX_QUEUE_SIZE];
     CAN_Queue_TX(&tx_frame);
 }
 

@@ -105,10 +105,8 @@ void CVC_StateMachine() {
                 air2 = true;
             }
 
-            // Contactors are closed but vehicle is charging, so don't ever go past this state
             if (charging) {
-                // Charging so turn on battery fans
-                battery_fans = true;
+                state = CHARGING;
                 break;
             }
 
@@ -139,7 +137,7 @@ void CVC_StateMachine() {
 
             // Check if vehicle is charging
             if (charging) {
-                state = NOT_READY_TO_DRIVE;
+                state = CHARGING;
                 buzzer = false;
 
                 break;
@@ -153,6 +151,22 @@ void CVC_StateMachine() {
                 buzzer = true;
             }
             break;
+        case CHARGING:
+            // Check if second contactor should be open
+            if (Inverter1_voltage < HV_voltage * MIN_PRECHARGE_PERCENT || Inverter2_voltage < HV_voltage * MIN_PRECHARGE_PERCENT) {
+                state = WAIT_FOR_PRECHARGE;
+                break;
+            } else {
+                state = CHARGING;
+                air2 = true;
+            }
+            battery_fans = true;
+            if (charging) {
+                state = CHARGING;
+                drive_lockout = true;
+            } else {
+                state = NOT_READY_TO_DRIVE;
+            }
         case READY_TO_DRIVE:
             // Check if second contactor should be open
             if (Inverter1_voltage < HV_voltage * MIN_PRECHARGE_PERCENT || Inverter2_voltage < HV_voltage * MIN_PRECHARGE_PERCENT) {
@@ -165,15 +179,14 @@ void CVC_StateMachine() {
 
             // Check if vehicle is charging
             if (charging) {
-                state = NOT_READY_TO_DRIVE;
-
+                state = CHARGING;
+                drive_lockout = true;
                 break;
             }
 
             // Check if throttle is invalid
             if (!CVC_data[CVC_THROTTLE_VALID]) {
                 state = WAIT_FOR_PRECHARGE;
-
                 break;
             }
 

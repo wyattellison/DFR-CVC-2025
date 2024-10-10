@@ -105,9 +105,10 @@ void Torque_CalculateAvailableTorque() {
     volatile int16_t wheel_speed = (Inverter1_rpm / 2 + Inverter2_rpm / 2);
     volatile int16_t max_torque;
     bus_voltage = (Inverter1_voltage + Inverter2_voltage) / 2;
+    volatile float battery_max_current = bus_voltage / (BATTERY_INTERNAL_RESISTANCE * BATTERY_CELLS_SERIES);
 
     if (wheel_speed >= 1) {
-        volatile float battery_power = bus_voltage * BATTERY_CURRENT_LIMIT;
+        volatile float battery_power = 0.5 * bus_voltage * battery_max_current;
         volatile float wheel_rads = (float)wheel_speed * UNDERVOLTAGE_SCALING_FACTOR;
         volatile float max_torque_float = battery_power / wheel_rads;
         max_torque = (int16_t)max_torque_float;
@@ -240,16 +241,8 @@ void Torque_SendTorque() {
     right_command.data[3] = 0;
 
     // Byte 4: Direction (0 = reverse, 1 = forward) [4]
-    if (CVC_data[CVC_LEFT_DIRECTION] == 0) {
-        left_command.data[4] = 0;
-    } else {
-        left_command.data[4] = 1;
-    }
-    if (CVC_data[CVC_RIGHT_DIRECTION] == 0) {
-        right_command.data[4] = 0;
-    } else {
-        right_command.data[4] = 1;
-    }
+    left_command.data[4] = CVC_data[CVC_LEFT_DIRECTION];
+    right_command.data[4] = CVC_data[CVC_RIGHT_DIRECTION];
 
     // Bytes 6-7: Torque limit (-32768 to 32767) Nm/10 [6, 7]
     left_command.data[6] = 0;
