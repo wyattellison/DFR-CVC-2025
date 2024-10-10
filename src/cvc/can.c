@@ -7,6 +7,9 @@
 
 #include <cvc/can.h>
 #include <cvc/data.h>
+#include <cvc/parse.h>
+#include <cvc/statemachine.h>
+#include <main.h>
 #include <stm32f7xx_hal_can.h>
 
 CircularBuffer CANRxBuffer;
@@ -162,37 +165,37 @@ void CAN_Store_Data(uint32_t IDE, uint32_t id, uint64_t data64) {
         }
 
         if (!CAN_EMUS_USE_EXT) {
-            if (id == (CAN_EMUS_BASE_11 + 0x0000)) {
+            if (id == (CAN_EMUS_BASE_11 + 0)) {
                 // EMUS BMS Overall Parameters - Byte 3 = 0x00 and Byte 4 = 0x00
                 CAN_data[EMUS_OverallParameters] = data64;
-            } else if (id == (CAN_EMUS_BASE_11 + 0x0007)) {
+            } else if (id == (CAN_EMUS_BASE_11 + 7)) {
                 // EMUS BMS Diagnostic Codes - Byte 3 = 0x00 and Byte 4 = 0x07
                 CAN_data[EMUS_DiagnosticCodes] = data64;
-            } else if (id == (CAN_EMUS_BASE_11 + 0x0001)) {
+            } else if (id == (CAN_EMUS_BASE_11 + 1)) {
                 // EMUS BMS Battery Voltage Overall Parameters - Byte 3 = 0x00 and Byte 4 = 0x01
                 CAN_data[EMUS_BatteryVoltageOverallParameters] = data64;
-            } else if (id == (CAN_EMUS_BASE_11 + 0x0002)) {
+            } else if (id == (CAN_EMUS_BASE_11 + 2)) {
                 // EMUS BMS Cell Module Temperature Overall Parameters - Byte 3 = 0x00 and Byte 4 = 0x02
                 CAN_data[EMUS_CellModuleTemperatureOverallParameters] = data64;
-            } else if (id == (CAN_EMUS_BASE_11 + 0x0008)) {
+            } else if (id == (CAN_EMUS_BASE_11 + 8)) {
                 // EMUS BMS Cell Temperature Overall Parameters - Byte 3 = 0x00 and Byte 4 = 0x08
                 CAN_data[EMUS_CellTemperatureOverallParameters] = data64;
-            } else if (id == (CAN_EMUS_BASE_11 + 0x0003)) {
+            } else if (id == (CAN_EMUS_BASE_11 + 3)) {
                 // EMUS BMS Cell Balancing Rate Overall Parameters - Byte 3 = 0x00 and Byte 4 = 0x03
                 CAN_data[EMUS_CellBalancingRateOverallParameters] = data64;
-            } else if (id == (CAN_EMUS_BASE_11 + 0x0500)) {
+            } else if (id == (CAN_EMUS_BASE_11 + 5)) {
                 // EMUS BMS State of Charge Parameters - Byte 3 = 0x05 and Byte 4 = 0x00
                 CAN_data[EMUS_StateOfChargeParameters] = data64;
-            } else if (id == (CAN_EMUS_BASE_11 + 0x0400)) {
+            } else if (id == (CAN_EMUS_BASE_11 + 80)) {
                 // EMUS BMS Configuration Parameters - Byte 3 = 0x04 and Byte 4 = 0x00
                 CAN_data[EMUS_ConfigurationParameters] = data64;
-            } else if (id == (CAN_EMUS_BASE_11 + 0x0401)) {
+            } else if (id == (CAN_EMUS_BASE_11 + 81)) {
                 // EMUS BMS Contactor Control - Byte 3 = 0x04 and Byte 4 = 0x01
                 CAN_data[EMUS_ContactorControl] = data64;
-            } else if (id == (CAN_EMUS_BASE_11 + 0x0600)) {
+            } else if (id == (CAN_EMUS_BASE_11 + 6)) {
                 // EMUS BMS Energy Parameters - Byte 3 = 0x06 and Byte 4 = 0x00
                 CAN_data[EMUS_EnergyParameters] = data64;
-            } else if (id == (CAN_EMUS_BASE_11 + 0x0405)) {
+            } else if (id == (CAN_EMUS_BASE_11 + 85)) {
                 // EMUS BMS Events - Byte 3 = 0x04 and Byte 4 = 0x05
                 CAN_data[EMUS_Events] = data64;
             }
@@ -240,20 +243,16 @@ void CAN_Store_Data(uint32_t IDE, uint32_t id, uint64_t data64) {
             if (id == ((CAN_VDM_BASE_29 << 16) | 0X0000)) {
                 // VDM GPS Latitude and Longitude - 0x0000A0000
                 CAN_data[VDM_GPSLatitudeLongitude] = data64;
-            }
-            else if (id == ((CAN_VDM_BASE_29 << 16) | 0X0001)) {
+            } else if (id == ((CAN_VDM_BASE_29 << 16) | 0X0001)) {
                 // VDM GPS Data - 0x0000A0001
                 CAN_data[VDM_GPSData] = data64;
-            }
-            else if (id == ((CAN_VDM_BASE_29 << 16) | 0X0002)) {
+            } else if (id == ((CAN_VDM_BASE_29 << 16) | 0X0002)) {
                 // VDM GPS Date and Time - 0x0000A0002
                 CAN_data[VDM_GPSDateTime] = data64;
-            }
-            else if (id == ((CAN_VDM_BASE_29 << 16) | 0X0003)) {
+            } else if (id == ((CAN_VDM_BASE_29 << 16) | 0X0003)) {
                 // VDM Acceleration Data - 0x0000A0003
                 CAN_data[VDM_AccelerationData] = data64;
-            }
-            else if (id == ((CAN_VDM_BASE_29 << 16) | 0X0004)) {
+            } else if (id == ((CAN_VDM_BASE_29 << 16) | 0X0004)) {
                 // VDM Yaw Rate Data - 0x0000A0004
                 CAN_data[VDM_YawRateData] = data64;
             }
@@ -347,16 +346,50 @@ void CAN_BroadcastSafety() {
 
     CAN_Queue_Frame_t tx_frame;
     tx_frame.Tx_header.IDE = CAN_ID_STD;
-    tx_frame.Tx_header.StdId = CAN_DASHBOARD_BASE_11 + 0;
+    tx_frame.Tx_header.StdId = CAN_DASHBOARD_BASE_11 + 1;
     tx_frame.Tx_header.RTR = CAN_RTR_DATA;
     tx_frame.Tx_header.DLC = 8;
     tx_frame.data[0] = CVC_data[CVC_BMS_STATE];
     tx_frame.data[1] = CVC_data[CVC_IMD_STATE];
     tx_frame.data[2] = CVC_data[CVC_DRIVE_MODE];
-    tx_frame.data[3] = CVC_data[CVC_BOT_STATE];
-    tx_frame.data[4] = CVC_data[CVC_COCKPIT_BRB_STATE];
-    tx_frame.data[5] = 0;
-    tx_frame.data[6] = 0;
-    tx_frame.data[7] = 0;
+    tx_frame.data[3] = CVC_data[CVC_STATE];
+    tx_frame.data[4] = CVC_data[CVC_BOT_STATE];
+    tx_frame.data[5] = CVC_data[CVC_COCKPIT_BRB_STATE];
+    tx_frame.data[6] = CVC_data[CVC_DCDC_STATE];
+    CAN_Queue_TX(&tx_frame);
+}
+
+void CAN_BroadcastData() {
+    static uint32_t last = 0;
+    if (HAL_GetTick() - last < CAN_BROADCAST_INTERVAL) {
+        return;
+    }
+    last = HAL_GetTick();
+
+    // CAN_Parse_Inverter_HighSpeedParameters(0);
+    // CAN_Parse_Inverter_HighSpeedParameters(1);
+    CAN_Parse_Inverter_MotorPositionParameters(0);
+    CAN_Parse_Inverter_MotorPositionParameters(1);
+
+    // int16_t avg_rpm = (CVC_data[INVERTER1_MOTOR_SPEED_HS] / 2) + (CVC_data[INVERTER2_MOTOR_SPEED_HS] / 2);
+    int16_t avg_rpm = 0;
+    int16_t motor1_speed = (int16_t)CVC_data[INVERTER1_MOTOR_SPEED];
+    int16_t motor2_speed = (int16_t)CVC_data[INVERTER2_MOTOR_SPEED];
+    if (motor1_speed < 0) {
+        motor1_speed = -motor1_speed;
+    }
+    if (motor2_speed < 0) {
+        motor2_speed = -motor2_speed;
+    }
+    avg_rpm = motor1_speed / 2 + motor2_speed / 2;
+    CAN_Queue_Frame_t tx_frame;
+    tx_frame.Tx_header.IDE = CAN_ID_STD;
+    tx_frame.Tx_header.StdId = CAN_DASHBOARD_BASE_11 + 2;
+    tx_frame.Tx_header.RTR = CAN_RTR_DATA;
+    tx_frame.Tx_header.DLC = 8;
+    tx_frame.data[0] = (CVC_data[CVC_THROTTLE] >> 8) & 0xFF;
+    tx_frame.data[1] = CVC_data[CVC_THROTTLE] & 0xFF;
+    tx_frame.data[2] = (avg_rpm >> 8) & 0xFF;
+    tx_frame.data[3] = avg_rpm & 0xFF;
     CAN_Queue_TX(&tx_frame);
 }

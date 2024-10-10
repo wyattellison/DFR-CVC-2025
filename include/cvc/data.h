@@ -158,6 +158,7 @@ typedef enum {
     BMS_CURRENT,
     BMS_ESTIMATED_CHARGE,
     BMS_ESTIMATED_SOC,
+    BMS_ESTIMATED_SOH,
     // Configuration Parameters - TODO: Figure out how to handle this
     // Contactor Control
     BMS_CONTACTOR_STATE,

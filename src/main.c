@@ -132,6 +132,7 @@ int main(void)
 
     // Send CVC data to rest of vehicle
     CAN_BroadcastSafety();
+    CAN_BroadcastData();
     Torque_SendTorque();
     CAN_Process_TX();
     Relay_Send();

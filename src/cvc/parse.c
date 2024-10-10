@@ -264,10 +264,11 @@ void CAN_Parse_EMUS_StateOfChargeParameters() {
     // Byte 3: Estimated charge (LSB)
     CVC_data[BMS_ESTIMATED_CHARGE] = (data[2] << 8) | data[3];
     // Byte 4: Don't care
-    // Byte 5: Don't care
-    // Byte 6: Estimated state of charge
-    CVC_data[BMS_ESTIMATED_SOC] = data[6];
-    // Byte 7: Don't care
+    // Byte 5: Estimated user state of charge (MSB)
+    // Byte 6: Estimated user state of charge (LSB)
+    CVC_data[BMS_ESTIMATED_SOC] = (data[5] << 8) | data[6];
+    // Byte 7: Estimated state of health
+    CVC_data[BMS_ESTIMATED_SOH] = data[7];
 
 }
 

@@ -66,5 +66,6 @@ void CAN_Process_TX(void);
 void CAN_Process_RX(void);
 void CAN_Store_Data(uint32_t IDE, uint32_t id, uint64_t data64);
 void CAN_BroadcastSafety(void);
+void CAN_BroadcastData(void);
 
 #endif  // CVC_CAN_H

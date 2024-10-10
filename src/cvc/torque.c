@@ -193,6 +193,7 @@ void Torque_CalculateTorque() {
             torque = (int16_t)(max_torque * 10 * (throttle * (REVERSE_TORQUE_LIMIT / 100.0)));
             left_torque = torque;
             right_torque = torque;
+
             left_direction = 1;
             right_direction = 0;
         }
@@ -217,6 +218,7 @@ void Torque_CalculateTorque() {
 }
 
 void Torque_SendTorque() {
+    static bool skip_enable = false;
     static uint32_t last = 0;
     if (HAL_GetTick() - last < TORQUE_PERIOD) {
         return;
@@ -231,23 +233,37 @@ void Torque_SendTorque() {
         right_command.data[i] = 0;
     }
 
+    // Bytes 2-3: Speed command (-32768 to 32767) RPM [2, 3]
+    left_command.data[2] = 0;
+    right_command.data[2] = 0;
+    left_command.data[3] = 0;
+    right_command.data[3] = 0;
+
+    // Byte 4: Direction (0 = reverse, 1 = forward) [4]
+    if (CVC_data[CVC_LEFT_DIRECTION] == 0) {
+        left_command.data[4] = 0;
+    } else {
+        left_command.data[4] = 1;
+    }
+    if (CVC_data[CVC_RIGHT_DIRECTION] == 0) {
+        right_command.data[4] = 0;
+    } else {
+        right_command.data[4] = 1;
+    }
+
+    // Bytes 6-7: Torque limit (-32768 to 32767) Nm/10 [6, 7]
+    left_command.data[6] = 0;
+    right_command.data[6] = 0;
+    left_command.data[7] = 0;
+    right_command.data[7] = 0;
+
     if (CVC_data[CVC_STATE] == READY_TO_DRIVE) {
-        if (CVC_data[CVC_DRIVE_MODE] == DRIVE) {
+        if (CVC_data[CVC_DRIVE_MODE] == DRIVE || CVC_data[CVC_DRIVE_MODE] == REVERSE) {
             // Bytes 0-1: Torque command (-32768 to 32767) Nm/10 [0, 1]
             left_command.data[0] = CVC_data[CVC_LEFT_TORQUE] & 0xFF;
             right_command.data[0] = CVC_data[CVC_RIGHT_TORQUE] & 0xFF;
             left_command.data[1] = (CVC_data[CVC_LEFT_TORQUE] >> 8) & 0xFF;
             right_command.data[1] = (CVC_data[CVC_RIGHT_TORQUE] >> 8) & 0xFF;
-
-            // Bytes 2-3: Speed command (-32768 to 32767) RPM [2, 3]
-            left_command.data[2] = 0;
-            right_command.data[2] = 0;
-            left_command.data[3] = 0;
-            right_command.data[3] = 0;
-
-            // Byte 4: Direction (0 = reverse, 1 = forward) [4]
-            left_command.data[4] = (uint8_t)CVC_data[CVC_LEFT_DIRECTION];
-            right_command.data[4] = (uint8_t)CVC_data[CVC_RIGHT_DIRECTION];
 
             // Byte 5 bit 0: Inverter enable (0 = disable, 1 = enable) [5]
             // Byte 5 bit 1: Inverter discharge (0 = disable, 1 = enable) [5]
@@ -260,55 +276,17 @@ void Torque_SendTorque() {
                     left_command.data[5] = 0x00;   // Inverter disabled, discharge disabled, speed mode disabled
                     right_command.data[5] = 0x00;  // Inverter disabled, discharge disabled, speed mode disabled
                 }
-            } else {
+            } else if (!skip_enable) {
                 left_command.data[5] = 0x01;   // Inverter enabled, discharge disabled, speed mode disabled
                 right_command.data[5] = 0x01;  // Inverter enabled, discharge disabled, speed mode disabled
             }
-
-            // Bytes 6-7: Torque limit (-32768 to 32767) Nm/10 [6, 7]
-            left_command.data[6] = 0;
-            right_command.data[6] = 0;
-            left_command.data[7] = 0;
-            right_command.data[7] = 0;
-        } else if (CVC_data[CVC_DRIVE_MODE] == REVERSE) {
-            // Bytes 0-1: Torque command (-32768 to 32767) Nm/10 [0, 1]
-            left_command.data[0] = CVC_data[CVC_LEFT_TORQUE] & 0xFF;
-            right_command.data[0] = CVC_data[CVC_RIGHT_TORQUE] & 0xFF;
-            left_command.data[1] = (CVC_data[CVC_LEFT_TORQUE] >> 8) & 0xFF;
-            right_command.data[1] = (CVC_data[CVC_RIGHT_TORQUE] >> 8) & 0xFF;
-
-            // Bytes 2-3: Speed command (-32768 to 32767) RPM [2, 3]
-            left_command.data[2] = 0;
-            right_command.data[2] = 0;
-            left_command.data[3] = 0;
-            right_command.data[3] = 0;
-
-            // Byte 4: Direction (0 = reverse, 1 = forward) [4]
-            left_command.data[4] = (uint8_t)CVC_data[CVC_LEFT_DIRECTION];
-            right_command.data[4] = (uint8_t)CVC_data[CVC_RIGHT_DIRECTION];
-
-            // Byte 5 bit 0: Inverter enable (0 = disable, 1 = enable) [5]
-            // Byte 5 bit 1: Inverter discharge (0 = disable, 1 = enable) [5]
-            // Byte 5 bit 2: Speed mode enable (0 = disable, 1 = enable) [5]
-            if (DISABLE_ON_ZERO_THROTTLE) {
-                if ((float)((uint16_t)CVC_data[CVC_THROTTLE]) * 0.01 > 0.0) {
-                    left_command.data[5] = 0x01;   // Inverter enabled, discharge disabled, speed mode disabled
-                    right_command.data[5] = 0x01;  // Inverter enabled, discharge disabled, speed mode disabled
-                } else {
-                    left_command.data[5] = 0x00;   // Inverter disabled, discharge disabled, speed mode disabled
-                    right_command.data[5] = 0x00;  // Inverter disabled, discharge disabled, speed mode disabled
-                }
-            } else {
-                left_command.data[5] = 0x01;   // Inverter enabled, discharge disabled, speed mode disabled
-                right_command.data[5] = 0x01;  // Inverter enabled, discharge disabled, speed mode disabled
-            }
-
-            // Bytes 6-7: Torque limit (-32768 to 32767) Nm/10 [6, 7]
-            left_command.data[6] = 0;
-            right_command.data[6] = 0;
-            left_command.data[7] = 0;
-            right_command.data[7] = 0;
         }
+    }
+
+    if (CVC_data[CVC_STATE] == READY_TO_DRIVE && skip_enable) {
+        skip_enable = false;
+    } else if (CVC_data[CVC_STATE] != READY_TO_DRIVE) {
+        skip_enable = true;
     }
 
     left_command.Tx_header.DLC = 8;
