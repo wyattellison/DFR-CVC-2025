@@ -107,16 +107,21 @@ int main(void)
   MX_ADC2_Init();
   MX_CAN1_Init();
   /* USER CODE BEGIN 2 */
-
   Analog_Configure();
   Relay_Enable();
   Relay_Set(BrakeLight, 1);
+
+  uint32_t last_time = 0;
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+    uint32_t now = HAL_GetTick();
+    CVC_data[CVC_MAIN_LOOP_TIME] = now - last_time;
+    last_time = now;
+
     // Get latest vehicle information
     Analog_ReadThrottle();
     Analog_ReadLV();

@@ -8,6 +8,7 @@
 #define CVC_DATA_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 typedef enum {
     EMUS_OverallParameters,
@@ -91,6 +92,7 @@ typedef enum {
     CVC_BOT_STATE,          // BOT state
     CVC_IMD_STATE,          // IMD state
     CVC_BMS_STATE,          // BMS state
+    CVC_MAIN_LOOP_TIME,     // Main loop time (ms)
     // === Front Sensor Board ==
     SENSOR_THROTTLE_ADC,
     SENSOR_STEERING_ANGLE,
@@ -380,6 +382,8 @@ typedef enum {
 // Main CAN data vector
 // Data array stored as single 64-bit integer
 extern volatile uint64_t CAN_data[NUM_MESSAGES];
+// CAN data parsed flag vector
+extern volatile bool CAN_data_parsed[NUM_MESSAGES];
 // CVC data vector
 // Data stored as single 64-bit integer
 extern volatile uint64_t CVC_data[NUM_DATA_VALUES];
