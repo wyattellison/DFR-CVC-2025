@@ -27,11 +27,15 @@
 #define TRACTION_CONTROL_MAX_ACCEL 0.351  // Maximum acceleration in RPM/ms
 #define TRACTION_CONTROL_GAIN 0.0         // Gain for traction control
 
-#define BATTERY_CURRENT_LIMIT 100.0               // Amps
-#define BATTERY_INTERNAL_RESISTANCE 0.013         // Ohms
-#define BATTERY_CELLS_PARALLEL 12                 // Number of cells in parallel
-#define BATTERY_CELLS_SERIES 60                   // Number of cells in series
-#define UNDERVOLTAGE_SCALING_FACTOR 0.1047197551  // 2 * pi / 60
+#define RPM_TO_RADS 0.1047197551        // 2 * pi / 60
+#define BATTERY_CURRENT_LIMIT 100.0     // Amps
+#define BATTERY_MIN_VOLTAGE 165.0       // Volts
+#define CELL_INTERNAL_RESISTANCE 0.013  // Ohms
+#define BATTERY_CELLS_PARALLEL 12       // Number of cells in parallel
+#define BATTERY_CELLS_SERIES 60         // Number of cells in series
+#define CONTACTOR_RESISTANCE 0.0004     // Ohms
+#define MISC_RESISTANCE 0.1             // Ohms
+#define PACK_RESISTANCE (BATTERY_CELLS_SERIES * (CELL_INTERNAL_RESISTANCE / BATTERY_CELLS_PARALLEL) + CONTACTOR_RESISTANCE * 2 + MISC_RESISTANCE)
 
 void Torque_CalculateAcceleration(void);
 

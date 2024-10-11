@@ -85,43 +85,61 @@ void Torque_CalculateAcceleration() {
 void Torque_CalculateAvailableTorque() {
     CAN_Parse_Inverter_VoltageParameters(0);
     CAN_Parse_Inverter_VoltageParameters(1);
+    // CAN_Parse_Inverter_HighSpeedParameters(0);
+    // CAN_Parse_Inverter_HighSpeedParameters(1);
     CAN_Parse_Inverter_MotorPositionParameters(0);
     CAN_Parse_Inverter_MotorPositionParameters(1);
 
     // Get average DC bus voltage
     volatile float bus_voltage;
     volatile float Inverter1_voltage = (float)((int16_t)CVC_data[INVERTER1_DC_BUS_VOLTAGE]) * 0.1;  // Fast message
-    volatile float Inverter2_voltage = (float)((int16_t)CVC_data[INVERTER1_DC_BUS_VOLTAGE]) * 0.1;  // Fast message
-    volatile int16_t Inverter1_rpm = (int16_t)CVC_data[INVERTER1_MOTOR_SPEED];
-    volatile int16_t Inverter2_rpm = (int16_t)CVC_data[INVERTER2_MOTOR_SPEED];
+    volatile float Inverter2_voltage = (float)((int16_t)CVC_data[INVERTER2_DC_BUS_VOLTAGE]) * 0.1;  // Fast message
+    // volatile float Inverter1_voltage = (float)((int16_t)CVC_data[INVERTER1_DC_BUS_VOLTAGE_HS]) * 0.1;  // High speed message
+    // volatile float Inverter2_voltage = (float)((int16_t)CVC_data[INVERTER2_DC_BUS_VOLTAGE_HS]) * 0.1;  // High speed message
+    volatile int16_t Inverter1_rpm = (int16_t)CVC_data[INVERTER1_MOTOR_SPEED];  // Fast message
+    volatile int16_t Inverter2_rpm = (int16_t)CVC_data[INVERTER2_MOTOR_SPEED];  // Fast message
+    // volatile int16_t Inverter1_rpm = (int16_t)CVC_data[INVERTER1_MOTOR_SPEED_HS]; // High speed message
+    // volatile int16_t Inverter2_rpm = (int16_t)CVC_data[INVERTER2_MOTOR_SPEED_HS]; // High speed message
 
-    // Fix sign of motor speed
-    if (CVC_data[CVC_DRIVE_MODE] == DRIVE) {
+    // Use absolute values for motor speeds
+    if (Inverter1_rpm < 0) {
         Inverter1_rpm *= -1;
-    } else if (CVC_data[CVC_DRIVE_MODE] == REVERSE) {
+    }
+    if (Inverter1_rpm < 1) {
+        Inverter1_rpm = 1;
+    }
+    if (Inverter2_rpm < 0) {
         Inverter2_rpm *= -1;
     }
-
-    volatile int16_t wheel_speed = (Inverter1_rpm / 2 + Inverter2_rpm / 2);
-    volatile int16_t max_torque;
+    if (Inverter2_rpm < 1) {
+        Inverter2_rpm = 1;
+    }
+    
     bus_voltage = (Inverter1_voltage + Inverter2_voltage) / 2;
-    volatile float battery_max_current = bus_voltage / (BATTERY_INTERNAL_RESISTANCE * BATTERY_CELLS_SERIES);
 
-    if (wheel_speed >= 1) {
-        volatile float battery_power = 0.5 * bus_voltage * battery_max_current;
-        volatile float wheel_rads = (float)wheel_speed * UNDERVOLTAGE_SCALING_FACTOR;
-        volatile float max_torque_float = battery_power / wheel_rads;
-        max_torque = (int16_t)max_torque_float;
+    volatile float max_sag = bus_voltage - BATTERY_MIN_VOLTAGE;
+    if (max_sag < 0) {
+        max_sag = 0;
+    }
+
+    volatile float max_current = max_sag / PACK_RESISTANCE;
+    // Assume each inverter is allowed to take half of available current
+    // TODO: Improve by using steering angle to determine which inverter will need more power
+    volatile float max_inverter1_torque = 0.5 * bus_voltage * max_current / (Inverter1_rpm * RPM_TO_RADS);
+    volatile float max_inverter2_torque = 0.5 * bus_voltage * max_current / (Inverter2_rpm * RPM_TO_RADS);
+    
+    
+    if (max_inverter1_torque > NOMINAL_TORQUE || max_inverter1_torque < 0) {
+        CVC_data[CVC_INVERTER1_TORQUE_LIMIT] = NOMINAL_TORQUE;
     } else {
-        max_torque = NOMINAL_TORQUE * (TORQUE_LIMIT / 100.0);
+        CVC_data[CVC_INVERTER1_TORQUE_LIMIT] = (int16_t)(max_inverter1_torque + 0.5);
     }
 
-    if (max_torque > NOMINAL_TORQUE) {
-        max_torque = NOMINAL_TORQUE;
-    } else if (max_torque < 0) {
-        max_torque = 0;
+    if (max_inverter2_torque > NOMINAL_TORQUE || max_inverter2_torque < 0) {
+        CVC_data[CVC_INVERTER2_TORQUE_LIMIT] = NOMINAL_TORQUE;
+    } else {
+        CVC_data[CVC_INVERTER2_TORQUE_LIMIT] = (int16_t)(max_inverter2_torque + 0.5);
     }
-    CVC_data[CVC_TORQUE_LIMIT] = max_torque;
 }
 
 void Torque_CalculateTorque() {
@@ -151,7 +169,10 @@ void Torque_CalculateTorque() {
     volatile int16_t right_torque = 0;
     volatile uint8_t left_direction = 0;
     volatile uint8_t right_direction = 1;
-    volatile int16_t max_torque = (int16_t)(CVC_data[CVC_TORQUE_LIMIT]);
+    volatile int16_t max_left_torque = (int16_t)(CVC_data[CVC_INVERTER1_TORQUE_LIMIT]);
+    volatile int16_t max_right_torque = (int16_t)(CVC_data[CVC_INVERTER2_TORQUE_LIMIT]);
+    // Use larger of the two torque limits
+    volatile int16_t max_torque = max_left_torque > max_right_torque ? max_left_torque : max_right_torque;
 
     // Clamp steering angle to -1 to 1
     if (steering_angle > 1) {
@@ -200,12 +221,20 @@ void Torque_CalculateTorque() {
         }
     }
 
+    // Overcurrent protection
+    if (left_torque > max_left_torque * 10) {
+        left_torque = max_left_torque * 10;
+    }
+    if (right_torque > max_right_torque * 10) {
+        right_torque = max_right_torque * 10;
+    }
+
+    // Final sanity check
     if (left_torque > NOMINAL_TORQUE * 10) {
         left_torque = NOMINAL_TORQUE * 10;
     } else if (left_torque < 0) {  // Assumes no regen for now, regen requires opposing torque value
         left_torque = 0;
     }
-
     if (right_torque > NOMINAL_TORQUE * 10) {
         right_torque = NOMINAL_TORQUE * 10;
     } else if (right_torque < 0) {  // Assumes no regen for now, regen requires opposing torque value

@@ -169,7 +169,7 @@ void CVC_StateMachine() {
             }
         case READY_TO_DRIVE:
             // Check if second contactor should be open
-            if (Inverter1_voltage < HV_voltage * MIN_PRECHARGE_PERCENT || Inverter2_voltage < HV_voltage * MIN_PRECHARGE_PERCENT) {
+            if (Inverter1_voltage < MIN_PRECHARGE_VOLTAGE || Inverter2_voltage < MIN_PRECHARGE_VOLTAGE) {
                 state = WAIT_FOR_PRECHARGE;
                 break;
             } else {
