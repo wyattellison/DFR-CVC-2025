@@ -114,7 +114,7 @@ void Torque_CalculateAvailableTorque() {
     if (Inverter2_rpm < 1) {
         Inverter2_rpm = 1;
     }
-    
+
     bus_voltage = (Inverter1_voltage + Inverter2_voltage) / 2;
 
     volatile float max_sag = bus_voltage - BATTERY_MIN_VOLTAGE;
@@ -125,10 +125,17 @@ void Torque_CalculateAvailableTorque() {
     volatile float max_current = max_sag / PACK_RESISTANCE;
     // Assume each inverter is allowed to take half of available current
     // TODO: Improve by using steering angle to determine which inverter will need more power
-    volatile float max_inverter1_torque = 0.5 * bus_voltage * max_current / (Inverter1_rpm * RPM_TO_RADS);
-    volatile float max_inverter2_torque = 0.5 * bus_voltage * max_current / (Inverter2_rpm * RPM_TO_RADS);
-    
-    
+    volatile float max_inverter1_current = max_current / 2;
+    volatile float max_inverter2_current = max_current / 2;
+    if (max_inverter1_current > INVERTER_CURRENT_LIMIT) {
+        max_inverter1_current = INVERTER_CURRENT_LIMIT;
+    }
+    if (max_inverter2_current > INVERTER_CURRENT_LIMIT) {
+        max_inverter2_current = INVERTER_CURRENT_LIMIT;
+    }
+    volatile float max_inverter1_torque = 0.5 * bus_voltage * max_inverter1_current / (Inverter1_rpm * RPM_TO_RADS);
+    volatile float max_inverter2_torque = 0.5 * bus_voltage * max_inverter2_current / (Inverter2_rpm * RPM_TO_RADS);
+
     if (max_inverter1_torque > NOMINAL_TORQUE || max_inverter1_torque < 0) {
         CVC_data[CVC_INVERTER1_TORQUE_LIMIT] = NOMINAL_TORQUE;
     } else {
@@ -221,7 +228,7 @@ void Torque_CalculateTorque() {
         }
     }
 
-    // Overcurrent protection
+    // Undervoltage & overcurrent protection
     if (left_torque > max_left_torque * 10) {
         left_torque = max_left_torque * 10;
     }

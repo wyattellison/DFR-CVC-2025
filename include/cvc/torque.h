@@ -28,7 +28,7 @@
 #define TRACTION_CONTROL_GAIN 0.0         // Gain for traction control
 
 #define RPM_TO_RADS 0.1047197551        // 2 * pi / 60
-#define BATTERY_CURRENT_LIMIT 100.0     // Amps
+#define INVERTER_CURRENT_LIMIT 250.0    // Amps
 #define BATTERY_MIN_VOLTAGE 165.0       // Volts
 #define CELL_INTERNAL_RESISTANCE 0.013  // Ohms
 #define BATTERY_CELLS_PARALLEL 12       // Number of cells in parallel
