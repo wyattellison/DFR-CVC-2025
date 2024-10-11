@@ -30,6 +30,7 @@ typedef enum {
     NOT_READY_TO_DRIVE,
     BUZZER,
     READY_TO_DRIVE,
+    CHARGING,
 } vehicle_state_t;
 
 // Drive state enum

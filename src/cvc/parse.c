@@ -8,11 +8,15 @@
  * @retval None
  */
 void CAN_Parse_Dashboard() {
+    if (CAN_data_parsed[DASHBOARD_Selector]) {
+        return;
+    }
     uint8_t data[8] = {0};
     for (uint8_t i = 0; i < 8; i++) {
         data[i] = (CAN_data[DASHBOARD_Selector] >> (i * 8)) & 0xFF;
     }
     CVC_data[DASH_REQUESTED_STATE] = data[0];
+    CAN_data_parsed[DASHBOARD_Selector] = true;
 }
 
 // TODO: Implement 11-bit CAN message parsing functions
@@ -25,6 +29,9 @@ void CAN_Parse_Dashboard() {
  * @retval None
  */
 void CAN_Parse_EMUS_OverallParameters() {
+    if (CAN_data_parsed[EMUS_OverallParameters]) {
+        return;
+    }
     uint8_t data[8] = {0};
     for (uint8_t i = 0; i < 8; i++) {
         data[i] = (CAN_data[EMUS_OverallParameters] >> (i * 8)) & 0xFF;
@@ -83,7 +90,7 @@ void CAN_Parse_EMUS_OverallParameters() {
     CVC_data[BMS_LAST_CHARGING_ERROR] = data[6];
     // Byte 7: Number of live cells (LSB)
     CVC_data[BMS_LIVE_CELL_COUNT] = (data[2] << 8) | data[7];
-
+    CAN_data_parsed[EMUS_OverallParameters] = true;
 }
 
 /**
@@ -92,6 +99,9 @@ void CAN_Parse_EMUS_OverallParameters() {
  * @retval None
  */
 void CAN_Parse_EMUS_DiagnosticCodes() {
+    if (CAN_data_parsed[EMUS_DiagnosticCodes]) {
+        return;
+    }
     uint8_t data[8] = {0};
     for (uint8_t i = 0; i < 8; i++) {
         data[i] = (CAN_data[EMUS_DiagnosticCodes] >> (i * 8)) & 0xFF;
@@ -140,7 +150,8 @@ void CAN_Parse_EMUS_DiagnosticCodes() {
     CVC_data[BMS_LIVE_CELL_COUNT_VALID] = (data[4] >> 3) & 0x01;
     CVC_data[BMS_CHARGING_FINISHED] = (data[4] >> 4) & 0x01;
     CVC_data[BMS_CELL_TEMP_VALID] = (data[4] >> 5) & 0x01;
-
+    
+    CAN_data_parsed[EMUS_DiagnosticCodes] = true;
 }
 
 /**
@@ -149,6 +160,9 @@ void CAN_Parse_EMUS_DiagnosticCodes() {
  * @retval None
  */
 void CAN_Parse_EMUS_BatteryVoltageOverallParameters() {
+    if (CAN_data_parsed[EMUS_BatteryVoltageOverallParameters]) {
+        return;
+    }
     uint8_t data[8] = {0};
     for (uint8_t i = 0; i < 8; i++) {
         data[i] = (CAN_data[EMUS_BatteryVoltageOverallParameters] >> (i * 8)) & 0xFF;
@@ -169,6 +183,8 @@ void CAN_Parse_EMUS_BatteryVoltageOverallParameters() {
     // Byte 5: Total voltage (MSB)
     CVC_data[BMS_TOTAL_VOLTAGE] = data[5] << 24 | CVC_data[BMS_TOTAL_VOLTAGE];
     // Byte 7: Don't care
+
+    CAN_data_parsed[EMUS_BatteryVoltageOverallParameters] = true;
 }
 
 /**
@@ -177,6 +193,9 @@ void CAN_Parse_EMUS_BatteryVoltageOverallParameters() {
  * @retval None
  */
 void CAN_Parse_EMUS_CellModuleTemperatureOverallParameters() {
+    if (CAN_data_parsed[EMUS_CellModuleTemperatureOverallParameters]) {
+        return;
+    }
     uint8_t data[8] = {0};
     for (uint8_t i = 0; i < 8; i++) {
         data[i] = (CAN_data[EMUS_CellModuleTemperatureOverallParameters] >> (i * 8)) & 0xFF;
@@ -194,6 +213,7 @@ void CAN_Parse_EMUS_CellModuleTemperatureOverallParameters() {
     // Byte 6: Don't care
     // Byte 7: Don't care
 
+    CAN_data_parsed[EMUS_CellModuleTemperatureOverallParameters] = true;
 }
 
 /**
@@ -202,6 +222,9 @@ void CAN_Parse_EMUS_CellModuleTemperatureOverallParameters() {
  * @retval None
  */
 void CAN_Parse_EMUS_CellTemperatureOverallParameters() {
+    if (CAN_data_parsed[EMUS_CellTemperatureOverallParameters]) {
+        return;
+    }
     uint8_t data[8] = {0};
     for (uint8_t i = 0; i < 8; i++) {
         data[i] = (CAN_data[EMUS_CellTemperatureOverallParameters] >> (i * 8)) & 0xFF;
@@ -219,6 +242,7 @@ void CAN_Parse_EMUS_CellTemperatureOverallParameters() {
     // Byte 6: Don't care
     // Byte 7: Don't care
 
+    CAN_data_parsed[EMUS_CellTemperatureOverallParameters] = true;
 }
 
 /**
@@ -227,6 +251,9 @@ void CAN_Parse_EMUS_CellTemperatureOverallParameters() {
  * @retval None
  */
 void CAN_Parse_EMUS_CellBalancingRateOverallParameters() {
+    if (CAN_data_parsed[EMUS_CellBalancingRateOverallParameters]) {
+        return;
+    }
     uint8_t data[8] = {0};
     for (uint8_t i = 0; i < 8; i++) {
         data[i] = (CAN_data[EMUS_CellBalancingRateOverallParameters] >> (i * 8)) & 0xFF;
@@ -244,6 +271,7 @@ void CAN_Parse_EMUS_CellBalancingRateOverallParameters() {
     // Byte 6: Don't care
     // Byte 7: Don't care
 
+    CAN_data_parsed[EMUS_CellBalancingRateOverallParameters] = true;
 }
 
 /**
@@ -252,6 +280,9 @@ void CAN_Parse_EMUS_CellBalancingRateOverallParameters() {
  * @retval None
  */
 void CAN_Parse_EMUS_StateOfChargeParameters() {
+    if (CAN_data_parsed[EMUS_StateOfChargeParameters]) {
+        return;
+    }
     uint8_t data[8] = {0};
     for (uint8_t i = 0; i < 8; i++) {
         data[i] = (CAN_data[EMUS_StateOfChargeParameters] >> (i * 8)) & 0xFF;
@@ -264,11 +295,13 @@ void CAN_Parse_EMUS_StateOfChargeParameters() {
     // Byte 3: Estimated charge (LSB)
     CVC_data[BMS_ESTIMATED_CHARGE] = (data[2] << 8) | data[3];
     // Byte 4: Don't care
-    // Byte 5: Don't care
-    // Byte 6: Estimated state of charge
-    CVC_data[BMS_ESTIMATED_SOC] = data[6];
-    // Byte 7: Don't care
+    // Byte 5: Estimated user state of charge (MSB)
+    // Byte 6: Estimated user state of charge (LSB)
+    CVC_data[BMS_ESTIMATED_SOC] = (data[5] << 8) | data[6];
+    // Byte 7: Estimated state of health
+    CVC_data[BMS_ESTIMATED_SOH] = data[7];
 
+    CAN_data_parsed[EMUS_StateOfChargeParameters] = true;
 }
 
 /**
@@ -277,7 +310,11 @@ void CAN_Parse_EMUS_StateOfChargeParameters() {
  * @retval None
  */
 void CAN_Parse_EMUS_ConfigurationParameters() {
+    if (CAN_data_parsed[EMUS_ConfigurationParameters]) {
+        return;
+    }
     // TODO: Implement
+    CAN_data_parsed[EMUS_ConfigurationParameters] = true;
 }
 
 /**
@@ -286,6 +323,9 @@ void CAN_Parse_EMUS_ConfigurationParameters() {
  * @retval None
  */
 void CAN_Parse_EMUS_ContactorControl() {
+    if (CAN_data_parsed[EMUS_ContactorControl]) {
+        return;
+    }
     uint8_t data[8] = {0};
     for (uint8_t i = 0; i < 8; i++) {
         data[i] = (CAN_data[EMUS_ContactorControl] >> (i * 8)) & 0xFF;
@@ -301,6 +341,7 @@ void CAN_Parse_EMUS_ContactorControl() {
     // Byte 6: Don't care
     // Byte 7: Don't care
 
+    CAN_data_parsed[EMUS_ContactorControl] = true;
 }
 
 /**
@@ -309,6 +350,9 @@ void CAN_Parse_EMUS_ContactorControl() {
  * @retval None
  */
 void CAN_Parse_EMUS_EnergyParameters() {
+    if (CAN_data_parsed[EMUS_EnergyParameters]) {
+        return;
+    }
     uint8_t data[8] = {0};
     for (uint8_t i = 0; i < 8; i++) {
         data[i] = (CAN_data[EMUS_EnergyParameters] >> (i * 8)) & 0xFF;
@@ -327,6 +371,7 @@ void CAN_Parse_EMUS_EnergyParameters() {
     // Byte 7: Distance Traveled (LSB)
     CVC_data[BMS_DISTANCE_TRAVELED] = (data[6] << 8) | data[7];
 
+    CAN_data_parsed[EMUS_EnergyParameters] = true;
 }
 
 /**
@@ -335,7 +380,11 @@ void CAN_Parse_EMUS_EnergyParameters() {
  * @retval None
  */
 void CAN_Parse_EMUS_Events() {
+    if (CAN_data_parsed[EMUS_Events]) {
+        return;
+    }
     // TODO: Implement
+    CAN_data_parsed[EMUS_Events] = true;
 }
 
 /**
@@ -345,6 +394,9 @@ void CAN_Parse_EMUS_Events() {
  */
 
 void CAN_Parse_VDM_GPSLatitudeLongitude() {
+    if (CAN_data_parsed[VDM_GPSLatitudeLongitude]) {
+        return;
+    }
     uint8_t data[8] = {0};
     for (uint8_t i = 0; i < 8; i++) {
         data[i] = (CAN_data[VDM_GPSLatitudeLongitude] >> (i * 8)) & 0xFF;
@@ -355,6 +407,7 @@ void CAN_Parse_VDM_GPSLatitudeLongitude() {
     // Byte 4-7: GPS Longitude
     CVC_data[VDM_GPS_LONGITUDE] = (data[0] << 24) | (data[1] << 16) | (data[2] << 8) | data[3];
 
+    CAN_data_parsed[VDM_GPSLatitudeLongitude] = true;
 }
 
 /**
@@ -364,6 +417,9 @@ void CAN_Parse_VDM_GPSLatitudeLongitude() {
  */
 
 void CAN_Parse_VDM_GPSData() {
+    if (CAN_data_parsed[VDM_GPSData]) {
+        return;
+    }
     uint8_t data[8] = {0};
     for (uint8_t i = 0; i < 8; i++) {
         data[i] = (CAN_data[VDM_GPSData] >> (i * 8)) & 0xFF;
@@ -380,6 +436,7 @@ void CAN_Parse_VDM_GPSData() {
     // Byte 7: GPS Validity
     CVC_data[VDM_GPS_DATA_VALID] = data[7];
 
+    CAN_data_parsed[VDM_GPSData] = true;
 }
 
 /**
@@ -389,6 +446,9 @@ void CAN_Parse_VDM_GPSData() {
  */
 
 void CAN_Parse_VDM_GPSDateTime() {
+    if (CAN_data_parsed[VDM_GPSDateTime]) {
+        return;
+    }
     uint8_t data[8] = {0};
     for (uint8_t i = 0; i < 8; i++) {
         data[i] = (CAN_data[VDM_GPSDateTime] >> (i * 8)) & 0xFF;
@@ -409,6 +469,7 @@ void CAN_Parse_VDM_GPSDateTime() {
     // Byte 7: UTC Second
     CVC_data[VDM_UTC_SECOND] = data[7];
 
+    CAN_data_parsed[VDM_GPSDateTime] = true;
 }
 
 /**
@@ -417,6 +478,9 @@ void CAN_Parse_VDM_GPSDateTime() {
  * @retval None
  */
 void CAN_Parse_VDM_AccelerationData() {
+    if (CAN_data_parsed[VDM_AccelerationData]) {
+        return;
+    }
     uint8_t data[8] = {0};
     for (uint8_t i = 0; i < 8; i++) {
         data[i] = (CAN_data[VDM_AccelerationData] >> (i * 8)) & 0xFF;
@@ -429,6 +493,7 @@ void CAN_Parse_VDM_AccelerationData() {
     // Byte 4, 5: Z-Axis Acceleration
     CVC_data[VDM_ACCELERATION_Z] = (data[4] << 8) | data[5];
 
+    CAN_data_parsed[VDM_AccelerationData] = true;
 }
 
 /**
@@ -437,6 +502,9 @@ void CAN_Parse_VDM_AccelerationData() {
  * @retval None
  */
 void CAN_Parse_VDM_YawRateData() {
+    if (CAN_data_parsed[VDM_YawRateData]) {
+        return;
+    }
     uint8_t data[8] = {0};
     for (uint8_t i = 0; i < 8; i++) {
         data[i] = (CAN_data[VDM_YawRateData] >> (i * 8)) & 0xFF;
@@ -449,6 +517,7 @@ void CAN_Parse_VDM_YawRateData() {
     // Byte 4, 5: Z-Axis Yaw Rate
     CVC_data[VDM_YAW_RATE_Z] = (data[4] << 8) | data[5];
 
+    CAN_data_parsed[VDM_YawRateData] = true;
 }
 
 /**
@@ -457,6 +526,9 @@ void CAN_Parse_VDM_YawRateData() {
  * @retval None
  */
 void CAN_Parse_SensorBoard() {
+    if (CAN_data_parsed[SENSORBOARD_Data]) {
+        return;
+    }
     uint8_t data[8] = {0};
     for (uint8_t i = 0; i < 8; i++) {
         data[i] = (CAN_data[SENSORBOARD_Data] >> (i * 8)) & 0xFF;
@@ -473,6 +545,7 @@ void CAN_Parse_SensorBoard() {
     // Byte 6, 7: Throttle Position
     CVC_data[SENSOR_THROTTLE_ADC] = data[6] | (data[7] << 8);
 
+    CAN_data_parsed[SENSORBOARD_Data] = true;
 }
 
 /**
@@ -484,6 +557,9 @@ void CAN_Parse_Inverter_Temp1(bool inverter) {
     uint8_t data[8] = {0};
 
     if (inverter == 0) {
+        if (CAN_data_parsed[INVERTER1_Temp1]) {
+            return;
+        }
         for (uint8_t i = 0; i < 8; i++) {
             data[i] = (CAN_data[INVERTER1_Temp1] >> (i * 8)) & 0xFF;
         }
@@ -495,7 +571,11 @@ void CAN_Parse_Inverter_Temp1(bool inverter) {
         CVC_data[INVERTER1_POWER_MODULE_C_TEMP] = (data[5] << 8) | data[4];
         // Byte 6, 7: Gate Driver Board Temperature
         CVC_data[INVERTER1_GATE_DRIVER_BOARD_TEMP] = (data[7] << 8) | data[6];
+        CAN_data_parsed[INVERTER1_Temp1] = true;
     } else {
+        if (CAN_data_parsed[INVERTER2_Temp1]) {
+            return;
+        }
         for (uint8_t i = 0; i < 8; i++) {
             data[i] = (CAN_data[INVERTER2_Temp1] >> (i * 8)) & 0xFF;
         }
@@ -507,8 +587,8 @@ void CAN_Parse_Inverter_Temp1(bool inverter) {
         CVC_data[INVERTER2_POWER_MODULE_C_TEMP] = (data[5] << 8) | data[4];
         // Byte 6, 7: Gate Driver Board Temperature
         CVC_data[INVERTER2_GATE_DRIVER_BOARD_TEMP] = (data[7] << 8) | data[6];
+        CAN_data_parsed[INVERTER2_Temp1] = true;
     }
-
 }
 
 /**
@@ -521,6 +601,9 @@ void CAN_Parse_Inverter_Temp2(bool inverter) {
     uint8_t data[8] = {0};
 
     if (inverter == 0) {
+        if (CAN_data_parsed[INVERTER1_Temp2]) {
+            return;
+        }
         for (uint8_t i = 0; i < 8; i++) {
             data[i] = (CAN_data[INVERTER1_Temp2] >> (i * 8)) & 0xFF;
         }
@@ -532,7 +615,11 @@ void CAN_Parse_Inverter_Temp2(bool inverter) {
         CVC_data[INVERTER1_RTD_INPUT_2_TEMP] = (data[5] << 8) | data[4];
         // Byte 6, 7: Stall Burst Model Temperature
         CVC_data[INVERTER1_STALL_BURST_MODEL_TEMP] = (data[7] << 8) | data[6];
+        CAN_data_parsed[INVERTER1_Temp2] = true;
     } else {
+        if (CAN_data_parsed[INVERTER2_Temp2]) {
+            return;
+        }
         for (uint8_t i = 0; i < 8; i++) {
             data[i] = (CAN_data[INVERTER2_Temp2] >> (i * 8)) & 0xFF;
         }
@@ -544,6 +631,7 @@ void CAN_Parse_Inverter_Temp2(bool inverter) {
         CVC_data[INVERTER1_RTD_INPUT_2_TEMP] = (data[5] << 8) | data[4];
         // Byte 6, 7: Stall Burst Model Temperature
         CVC_data[INVERTER1_STALL_BURST_MODEL_TEMP] = (data[7] << 8) | data[6];
+        CAN_data_parsed[INVERTER2_Temp2] = true;
     }
 
 }
@@ -558,6 +646,9 @@ void CAN_Parse_Inverter_Temp3TorqueShudder(bool inverter) {
     uint8_t data[8] = {0};
 
     if (inverter == 0) {
+        if (CAN_data_parsed[INVERTER1_Temp3TorqueShudder]) {
+            return;
+        }
         for (uint8_t i = 0; i < 8; i++) {
             data[i] = (CAN_data[INVERTER1_Temp3TorqueShudder] >> (i * 8)) & 0xFF;
         }
@@ -569,7 +660,11 @@ void CAN_Parse_Inverter_Temp3TorqueShudder(bool inverter) {
         CVC_data[INVERTER1_MOTOR_TEMP] = (data[5] << 8) | data[4];
         // Byte 6, 7: A value of torque used in shudder compensation.
         CVC_data[INVERTER1_TORQUE_SHUDDER] = (data[7] << 8) | data[6];
+        CAN_data_parsed[INVERTER1_Temp3TorqueShudder] = true;
     } else {
+        if (CAN_data_parsed[INVERTER2_Temp3TorqueShudder]) {
+            return;
+        }
         for (uint8_t i = 0; i < 8; i++) {
             data[i] = (CAN_data[INVERTER2_Temp3TorqueShudder] >> (i * 8)) & 0xFF;
         }
@@ -581,6 +676,7 @@ void CAN_Parse_Inverter_Temp3TorqueShudder(bool inverter) {
         CVC_data[INVERTER2_MOTOR_TEMP] = (data[5] << 8) | data[4];
         // Byte 6, 7: A value of torque used in shudder compensation.
         CVC_data[INVERTER2_TORQUE_SHUDDER] = (data[7] << 8) | data[6];
+        CAN_data_parsed[INVERTER2_Temp3TorqueShudder] = true;
     }
 
 }
@@ -593,7 +689,13 @@ void CAN_Parse_Inverter_Temp3TorqueShudder(bool inverter) {
 
 // 01234567 89012345 67890123 45678901 23456789 01234567 89012345 67890123
 void CAN_Parse_Inverter_AnalogInputStatus(bool inverter) {
+    if (CAN_data_parsed[INVERTER1_AnalogInputStatus] && CAN_data_parsed[INVERTER2_AnalogInputStatus]) {
+        return;
+    }
     if (inverter == 0) {
+        if (CAN_data_parsed[INVERTER1_AnalogInputStatus]) {
+            return;
+        }
         uint64_t data64 = CAN_data[INVERTER1_AnalogInputStatus];
         // Bits 0-9: Analog Input #1
         CVC_data[INVERTER1_ANALOG_INPUT_1] = (data64 >> 0) & 0x3FF;
@@ -607,7 +709,11 @@ void CAN_Parse_Inverter_AnalogInputStatus(bool inverter) {
         CVC_data[INVERTER1_ANALOG_INPUT_5] = (data64 >> 42) & 0x3FF;
         // Bits 52-61: Analog Input #6
         CVC_data[INVERTER1_ANALOG_INPUT_6] = (data64 >> 52) & 0x3FF;
+        CAN_data_parsed[INVERTER1_AnalogInputStatus] = true;
     } else {
+        if (CAN_data_parsed[INVERTER2_AnalogInputStatus]) {
+            return;
+        }
         uint64_t data64 = CAN_data[INVERTER2_AnalogInputStatus];
         // Bits 0-9: Analog Input #1
         CVC_data[INVERTER2_ANALOG_INPUT_1] = (data64 >> 0) & 0x3FF;
@@ -621,8 +727,8 @@ void CAN_Parse_Inverter_AnalogInputStatus(bool inverter) {
         CVC_data[INVERTER2_ANALOG_INPUT_5] = (data64 >> 42) & 0x3FF;
         // Bits 52-61: Analog Input #6
         CVC_data[INVERTER2_ANALOG_INPUT_6] = (data64 >> 52) & 0x3FF;
+        CAN_data_parsed[INVERTER2_AnalogInputStatus] = true;
     }
-
 }
 
 /**
@@ -635,6 +741,9 @@ void CAN_Parse_Inverter_DigitalInputStatus(bool inverter) {
     uint8_t data[8] = {0};
 
     if (inverter == 0) {
+        if (CAN_data_parsed[INVERTER1_DigitalInputStatus]) {
+            return;
+        }
         for (uint8_t i = 0; i < 8; i++) {
             data[i] = (CAN_data[INVERTER1_DigitalInputStatus] >> (i * 8)) & 0xFF;
         }
@@ -652,7 +761,11 @@ void CAN_Parse_Inverter_DigitalInputStatus(bool inverter) {
         CVC_data[INVERTER1_START_SWITCH] = data[4];
         // Byte 6: Status of Digital Input #7, Valet Mode
         CVC_data[INVERTER1_VALET_MODE] = data[7];
+        CAN_data_parsed[INVERTER1_DigitalInputStatus] = true;
     } else {
+        if (CAN_data_parsed[INVERTER2_DigitalInputStatus]) {
+            return;
+        }
         for (uint8_t i = 0; i < 8; i++) {
             data[i] = (CAN_data[INVERTER2_DigitalInputStatus] >> (i * 8)) & 0xFF;
         }
@@ -670,8 +783,8 @@ void CAN_Parse_Inverter_DigitalInputStatus(bool inverter) {
         CVC_data[INVERTER2_START_SWITCH] = data[4];
         // Byte 6: Status of Digital Input #7, Valet Mode
         CVC_data[INVERTER2_VALET_MODE] = data[7];
+        CAN_data_parsed[INVERTER2_DigitalInputStatus] = true;
     }
-
 }
 
 /**
@@ -684,6 +797,9 @@ void CAN_Parse_Inverter_MotorPositionParameters(bool inverter) {
     uint8_t data[8] = {0};
 
     if (inverter == 0) {
+        if (CAN_data_parsed[INVERTER1_MotorPositionParameters]) {
+            return;
+        }
         for (uint8_t i = 0; i < 8; i++) {
             data[i] = (CAN_data[INVERTER1_MotorPositionParameters] >> (i * 8)) & 0xFF;
         }
@@ -695,7 +811,11 @@ void CAN_Parse_Inverter_MotorPositionParameters(bool inverter) {
         CVC_data[INVERTER1_ELECTRICAL_OUTPUT_FREQUENCY] = (data[5] << 8) | data[4];
         // Byte 6, 7: Delta Resolver Filtered
         CVC_data[INVERTER1_DELTA_RESOLVER_FILTERED] = (data[7] << 8) | data[6];
+        CAN_data_parsed[INVERTER1_MotorPositionParameters] = true;
     } else {
+        if (CAN_data_parsed[INVERTER2_MotorPositionParameters]) {
+            return;
+        }
         for (uint8_t i = 0; i < 8; i++) {
             data[i] = (CAN_data[INVERTER2_MotorPositionParameters] >> (i * 8)) & 0xFF;
         }
@@ -707,6 +827,7 @@ void CAN_Parse_Inverter_MotorPositionParameters(bool inverter) {
         CVC_data[INVERTER2_ELECTRICAL_OUTPUT_FREQUENCY] = (data[5] << 8) | data[4];
         // Byte 6, 7: Delta Resolver Filtered
         CVC_data[INVERTER2_DELTA_RESOLVER_FILTERED] = (data[7] << 8) | data[6];
+        CAN_data_parsed[INVERTER2_MotorPositionParameters] = true;
     }
 
 }
@@ -721,6 +842,9 @@ void CAN_Parse_Inverter_CurrentParameters(bool inverter) {
     uint8_t data[8] = {0};
 
     if (inverter == 0) {
+        if (CAN_data_parsed[INVERTER1_CurrentParameters]) {
+            return;
+        }
         for (uint8_t i = 0; i < 8; i++) {
             data[i] = (CAN_data[INVERTER1_CurrentParameters] >> (i * 8)) & 0xFF;
         }
@@ -732,7 +856,11 @@ void CAN_Parse_Inverter_CurrentParameters(bool inverter) {
         CVC_data[INVERTER1_PHASE_C_CURRENT] = (data[5] << 8) | data[4];
         // Byte 6, 7: DC BUS Current
         CVC_data[INVERTER1_DC_BUS_CURRENT] = (data[7] << 8) | data[6];
+        CAN_data_parsed[INVERTER1_CurrentParameters] = true;
     } else {
+        if (CAN_data_parsed[INVERTER2_CurrentParameters]) {
+            return;
+        }
         for (uint8_t i = 0; i < 8; i++) {
             data[i] = (CAN_data[INVERTER2_CurrentParameters] >> (i * 8)) & 0xFF;
         }
@@ -744,6 +872,7 @@ void CAN_Parse_Inverter_CurrentParameters(bool inverter) {
         CVC_data[INVERTER2_PHASE_C_CURRENT] = (data[5] << 8) | data[4];
         // Byte 6, 7: DC BUS Current
         CVC_data[INVERTER2_DC_BUS_CURRENT] = (data[7] << 8) | data[6];
+        CAN_data_parsed[INVERTER2_CurrentParameters] = true;
     }
 
 }
@@ -758,6 +887,9 @@ void CAN_Parse_Inverter_VoltageParameters(bool inverter) {
     uint8_t data[8] = {0};
 
     if (inverter == 0) {
+        if (CAN_data_parsed[INVERTER1_VoltageParameters]) {
+            return;
+        }
         for (uint8_t i = 0; i < 8; i++) {
             data[i] = (CAN_data[INVERTER1_VoltageParameters] >> (i * 8)) & 0xFF;
         }
@@ -770,7 +902,11 @@ void CAN_Parse_Inverter_VoltageParameters(bool inverter) {
         CVC_data[INVERTER1_VAB_VD_VOLTAGE] = (data[5] << 8) | data[4];
         // Byte 6, 7: DC BUS Current
         CVC_data[INVERTER1_VAB_VQ_VOLTAGE] = (data[7] << 8) | data[6];
+        CAN_data_parsed[INVERTER1_VoltageParameters] = true;
     } else {
+        if (CAN_data_parsed[INVERTER2_VoltageParameters]) {
+            return;
+        }
         for (uint8_t i = 0; i < 8; i++) {
             data[i] = (CAN_data[INVERTER2_VoltageParameters] >> (i * 8)) & 0xFF;
         }
@@ -783,6 +919,7 @@ void CAN_Parse_Inverter_VoltageParameters(bool inverter) {
         CVC_data[INVERTER2_VAB_VD_VOLTAGE] = (data[5] << 8) | data[4];
         // Byte 6, 7: DC BUS Current
         CVC_data[INVERTER2_VAB_VQ_VOLTAGE] = (data[7] << 8) | data[6];
+        CAN_data_parsed[INVERTER2_VoltageParameters] = true;
     }
 
 }
@@ -797,6 +934,9 @@ void CAN_Parse_Inverter_FluxParameters(bool inverter) {
     uint8_t data[8] = {0};
 
     if (inverter == 0) {
+        if (CAN_data_parsed[INVERTER1_FluxParameters]) {
+            return;
+        }
         for (uint8_t i = 0; i < 8; i++) {
             data[i] = (CAN_data[INVERTER1_FluxParameters] >> (i * 8)) & 0xFF;
         }
@@ -808,7 +948,11 @@ void CAN_Parse_Inverter_FluxParameters(bool inverter) {
         CVC_data[INVERTER1_ID_CURRENT] = (data[5] << 8) | data[4];
         // Byte 6, 7: Q-axis current feedback
         CVC_data[INVERTER1_IQ_CURRENT] = (data[7] << 8) | data[6];
+        CAN_data_parsed[INVERTER1_FluxParameters] = true;
     } else {
+        if (CAN_data_parsed[INVERTER2_FluxParameters]) {
+            return;
+        }
         for (uint8_t i = 0; i < 8; i++) {
             data[i] = (CAN_data[INVERTER2_FluxParameters] >> (i * 8)) & 0xFF;
         }
@@ -820,6 +964,7 @@ void CAN_Parse_Inverter_FluxParameters(bool inverter) {
         CVC_data[INVERTER2_ID_CURRENT] = (data[5] << 8) | data[4];
         // Byte 6, 7: Q-axis current feedback
         CVC_data[INVERTER2_IQ_CURRENT] = (data[7] << 8) | data[6];
+        CAN_data_parsed[INVERTER2_FluxParameters] = true;
     }
 
 }
@@ -834,6 +979,9 @@ void CAN_Parse_Inverter_InternalVoltageParameters(bool inverter) {
     uint8_t data[8] = {0};
 
     if (inverter == 0) {
+        if (CAN_data_parsed[INVERTER1_InternalVoltageParameters]) {
+            return;
+        }
         for (uint8_t i = 0; i < 8; i++) {
             data[i] = (CAN_data[INVERTER1_InternalVoltageParameters] >> (i * 8)) & 0xFF;
         }
@@ -845,7 +993,11 @@ void CAN_Parse_Inverter_InternalVoltageParameters(bool inverter) {
         CVC_data[INVERTER1_5_0_REFERENCE_VOLTAGE] = (data[5] << 8) | data[4];
         // Byte 6, 7: 12.0 Reference Voltage
         CVC_data[INVERTER1_12_0_REFERENCE_VOLTAGE] = (data[7] << 8) | data[6];
+        CAN_data_parsed[INVERTER1_InternalVoltageParameters] = true;
     } else {
+        if (CAN_data_parsed[INVERTER2_InternalVoltageParameters]) {
+            return;
+        }
         for (uint8_t i = 0; i < 8; i++) {
             data[i] = (CAN_data[INVERTER2_InternalVoltageParameters] >> (i * 8)) & 0xFF;
         }
@@ -857,6 +1009,7 @@ void CAN_Parse_Inverter_InternalVoltageParameters(bool inverter) {
         CVC_data[INVERTER2_5_0_REFERENCE_VOLTAGE] = (data[5] << 8) | data[4];
         // Byte 6, 7: 12.0 Reference Voltage
         CVC_data[INVERTER2_12_0_REFERENCE_VOLTAGE] = (data[7] << 8) | data[6];
+        CAN_data_parsed[INVERTER2_InternalVoltageParameters] = true;
     }
 
 }
@@ -871,6 +1024,9 @@ void CAN_Parse_Inverter_InternalStateParameters(bool inverter) {
     uint8_t data[8] = {0};
 
     if (inverter == 0) {
+        if (CAN_data_parsed[INVERTER1_InternalStateParameters]) {
+            return;
+        }
         for (uint8_t i = 0; i < 8; i++) {
             data[i] = (CAN_data[INVERTER1_InternalStateParameters] >> (i * 8)) & 0xFF;
         }
@@ -931,7 +1087,11 @@ void CAN_Parse_Inverter_InternalStateParameters(bool inverter) {
         CVC_data[INVERTER1_LOW_SPEED_LIMITING] = (data[6] >> 5) & 0x01;
         CVC_data[INVERTER1_COOLANT_TEMP_LIMITING] = (data[6] >> 6) & 0x01;
         CVC_data[INVERTER1_LIMIT_STALL_BURST_MODEL] = (data[6] >> 7) & 0x01;
+        CAN_data_parsed[INVERTER1_InternalStateParameters] = true;
     } else {
+        if (CAN_data_parsed[INVERTER2_InternalStateParameters]) {
+            return;
+        }
         for (uint8_t i = 0; i < 8; i++) {
             data[i] = (CAN_data[INVERTER2_InternalStateParameters] >> (i * 8)) & 0xFF;
         }
@@ -992,6 +1152,7 @@ void CAN_Parse_Inverter_InternalStateParameters(bool inverter) {
         CVC_data[INVERTER2_LOW_SPEED_LIMITING] = (data[6] >> 5) & 0x01;
         CVC_data[INVERTER2_COOLANT_TEMP_LIMITING] = (data[6] >> 6) & 0x01;
         CVC_data[INVERTER2_LIMIT_STALL_BURST_MODEL] = (data[6] >> 7) & 0x01;
+        CAN_data_parsed[INVERTER2_InternalStateParameters] = true;
     }
 
 }
@@ -1006,6 +1167,9 @@ void CAN_Parse_Inverter_FaultCodes(bool inverter) {
     uint8_t data[8] = {0};
 
     if (inverter == 0) {
+        if (CAN_data_parsed[INVERTER1_FaultCodes]) {
+            return;
+        }
         for (uint8_t i = 0; i < 8; i++) {
             data[i] = (CAN_data[INVERTER1_FaultCodes] >> (i * 8)) & 0xFF;
         }
@@ -1017,7 +1181,11 @@ void CAN_Parse_Inverter_FaultCodes(bool inverter) {
         CVC_data[INVERTER1_RUN_FAULT_LO] = (data[5] << 8) | data[4];
         // Byte 6, 7: Run Fault Hi
         CVC_data[INVERTER1_RUN_FAULT_HI] = (data[7] << 8) | data[6];
+        CAN_data_parsed[INVERTER1_FaultCodes] = true;
     } else {
+        if (CAN_data_parsed[INVERTER2_FaultCodes]) {
+            return;
+        }
         for (uint8_t i = 0; i < 8; i++) {
             data[i] = (CAN_data[INVERTER2_FaultCodes] >> (i * 8)) & 0xFF;
         }
@@ -1029,6 +1197,7 @@ void CAN_Parse_Inverter_FaultCodes(bool inverter) {
         CVC_data[INVERTER2_RUN_FAULT_LO] = (data[5] << 8) | data[4];
         // Byte 6, 7: Run Fault Hi
         CVC_data[INVERTER2_RUN_FAULT_HI] = (data[7] << 8) | data[6];
+        CAN_data_parsed[INVERTER2_FaultCodes] = true;
     }
 
 }
@@ -1042,6 +1211,9 @@ void CAN_Parse_Inverter_HighSpeedParameters(bool inverter) {
     uint8_t data[8] = {0};
 
     if (inverter == 0) {
+        if (CAN_data_parsed[INVERTER1_HighSpeedParameters]) {
+            return;
+        }
         for (uint8_t i = 0; i < 8; i++) {
             data[i] = (CAN_data[INVERTER1_HighSpeedParameters] >> (i * 8)) & 0xFF;
         }
@@ -1050,7 +1222,11 @@ void CAN_Parse_Inverter_HighSpeedParameters(bool inverter) {
         CVC_data[INVERTER1_TORQUE_FEEDBACK_HS] = (data[3] << 8) | data[2];
         CVC_data[INVERTER1_MOTOR_SPEED_HS] = (data[5] << 8) | data[4];
         CVC_data[INVERTER1_DC_BUS_VOLTAGE_HS] = (data[7] << 8) | data[6];
+        CAN_data_parsed[INVERTER1_HighSpeedParameters] = true;
     } else {
+        if (CAN_data_parsed[INVERTER2_HighSpeedParameters]) {
+            return;
+        }
         for (uint8_t i = 0; i < 8; i++) {
             data[i] = (CAN_data[INVERTER2_HighSpeedParameters] >> (i * 8)) & 0xFF;
         }
@@ -1059,5 +1235,6 @@ void CAN_Parse_Inverter_HighSpeedParameters(bool inverter) {
         CVC_data[INVERTER2_TORQUE_FEEDBACK_HS] = (data[3] << 8) | data[2];
         CVC_data[INVERTER2_MOTOR_SPEED_HS] = (data[5] << 8) | data[4];
         CVC_data[INVERTER2_DC_BUS_VOLTAGE_HS] = (data[7] << 8) | data[6];
+        CAN_data_parsed[INVERTER2_HighSpeedParameters] = true;
     }
 }

@@ -107,16 +107,21 @@ int main(void)
   MX_ADC2_Init();
   MX_CAN1_Init();
   /* USER CODE BEGIN 2 */
-
   Analog_Configure();
   Relay_Enable();
   Relay_Set(BrakeLight, 1);
+
+  uint32_t last_time = 0;
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+    uint32_t now = HAL_GetTick();
+    CVC_data[CVC_MAIN_LOOP_TIME] = now - last_time;
+    last_time = now;
+
     // Get latest vehicle information
     Analog_ReadThrottle();
     Analog_ReadLV();
@@ -132,6 +137,7 @@ int main(void)
 
     // Send CVC data to rest of vehicle
     CAN_BroadcastSafety();
+    CAN_BroadcastData();
     Torque_SendTorque();
     CAN_Process_TX();
     Relay_Send();
@@ -340,7 +346,7 @@ static void MX_CAN1_Init(void)
     filter.FilterIdLow = 0x0000;
     filter.FilterMaskIdHigh = 0x0000;
     filter.FilterMaskIdLow = 0x0000;
-    filter.FilterFIFOAssignment = CAN_RX_FIFO0;
+    filter.FilterFIFOAssignment = CAN_RX_FIFO0 | CAN_RX_FIFO1;
     filter.FilterActivation = ENABLE;
     filter.SlaveStartFilterBank = 14;
     if (HAL_CAN_ConfigFilter(&hcan1, &filter) != HAL_OK) {
@@ -355,6 +361,10 @@ static void MX_CAN1_Init(void)
 
     // Activate CAN RX notification
     if (HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING) != HAL_OK) {
+        // Notification Error
+        Error_Handler();
+    }
+    if (HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO1_MSG_PENDING) != HAL_OK) {
         // Notification Error
         Error_Handler();
     }
