@@ -136,14 +136,14 @@ void Torque_CalculateAvailableTorque() {
     volatile float max_inverter1_torque = 0.5 * bus_voltage * max_inverter1_current / (Inverter1_rpm * RPM_TO_RADS);
     volatile float max_inverter2_torque = 0.5 * bus_voltage * max_inverter2_current / (Inverter2_rpm * RPM_TO_RADS);
 
-    if (max_inverter1_torque > NOMINAL_TORQUE || max_inverter1_torque < 0) {
-        CVC_data[CVC_INVERTER1_TORQUE_LIMIT] = NOMINAL_TORQUE;
+    if (max_inverter1_torque > ((NOMINAL_TORQUE * TORQUE_LIMIT) / 100.0) || max_inverter1_torque < 0) {
+        CVC_data[CVC_INVERTER1_TORQUE_LIMIT] = (int16_t)((NOMINAL_TORQUE * TORQUE_LIMIT) / 100.0);
     } else {
         CVC_data[CVC_INVERTER1_TORQUE_LIMIT] = (int16_t)(max_inverter1_torque + 0.5);
     }
 
-    if (max_inverter2_torque > NOMINAL_TORQUE || max_inverter2_torque < 0) {
-        CVC_data[CVC_INVERTER2_TORQUE_LIMIT] = NOMINAL_TORQUE;
+    if (max_inverter2_torque > ((NOMINAL_TORQUE * TORQUE_LIMIT) / 100.0) || max_inverter2_torque < 0) {
+        CVC_data[CVC_INVERTER2_TORQUE_LIMIT] = (int16_t)((NOMINAL_TORQUE * TORQUE_LIMIT) / 100.0);
     } else {
         CVC_data[CVC_INVERTER2_TORQUE_LIMIT] = (int16_t)(max_inverter2_torque + 0.5);
     }

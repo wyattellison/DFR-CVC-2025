@@ -12,7 +12,7 @@
 #define TORQUE_PERIOD 10            // ms
 #define NOMINAL_TORQUE 121          // Nm
 #define REVERSE_TORQUE_LIMIT 20.0   // Percentage of nominal torque (0.0 - 100.0)
-#define TORQUE_LIMIT 100.0          // Percentage of nominal torque (0.0 - 100.0)
+#define TORQUE_LIMIT 100.0           // Percentage of nominal torque (0.0 - 100.0)
 #define DISABLE_ON_ZERO_THROTTLE 0  // Disable inverters when throttle is at 0%
 #define INVERTER_ACCEL_AVERAGE 3    // Number of acceleration values to average
 
@@ -33,8 +33,8 @@
 #define CELL_INTERNAL_RESISTANCE 0.013  // Ohms
 #define BATTERY_CELLS_PARALLEL 12       // Number of cells in parallel
 #define BATTERY_CELLS_SERIES 60         // Number of cells in series
-#define CONTACTOR_RESISTANCE 0.0004     // Ohms
-#define MISC_RESISTANCE 0.1             // Ohms
+#define CONTACTOR_RESISTANCE 0.0002     // Ohms
+#define MISC_RESISTANCE 0.002           // Ohms
 #define PACK_RESISTANCE (BATTERY_CELLS_SERIES * (CELL_INTERNAL_RESISTANCE / BATTERY_CELLS_PARALLEL) + CONTACTOR_RESISTANCE * 2 + MISC_RESISTANCE)
 
 void Torque_CalculateAcceleration(void);
