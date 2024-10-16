@@ -188,7 +188,7 @@ void Torque_CalculateTorque() {
         steering_angle = -1;
     }
 
-    if (!throttle_valid || throttle == 0.0 || CVC_data[CVC_STATE] != READY_TO_DRIVE) {
+    if (!throttle_valid || CVC_data[CVC_STATE] != READY_TO_DRIVE) {
         left_torque = 0;
         right_torque = 0;
     } else {
@@ -218,10 +218,17 @@ void Torque_CalculateTorque() {
             left_direction = 0;
             right_direction = 1;
         } else if (CVC_data[CVC_DRIVE_MODE] == REVERSE) {
-            // Calculate torque for reverse mode
-            torque = (int16_t)(max_torque * 10 * (throttle * (REVERSE_TORQUE_LIMIT / 100.0)));
-            left_torque = torque;
-            right_torque = torque;
+            // Calculate torque for drive mode
+            torque = (int16_t)(max_torque * 10 * (throttle * REVERSE_TORQUE_LIMIT / 100.0));
+
+            // Torque vectoring
+            if (steering_angle < 0) {  // Left turn
+                left_torque = torque + (int16_t)(TORQUE_VECTORING_GAIN * torque * steering_angle);
+                right_torque = torque;
+            } else {  // Right turn
+                left_torque = torque;
+                right_torque = torque - (int16_t)(TORQUE_VECTORING_GAIN * torque * steering_angle);
+            }
 
             left_direction = 1;
             right_direction = 0;
@@ -255,7 +262,7 @@ void Torque_CalculateTorque() {
 }
 
 void Torque_SendTorque() {
-    static bool skip_enable = false;
+    static bool first_enable = false;
     static uint32_t last = 0;
     if (HAL_GetTick() - last < TORQUE_PERIOD) {
         return;
@@ -305,17 +312,16 @@ void Torque_SendTorque() {
                     left_command.data[5] = 0x00;   // Inverter disabled, discharge disabled, speed mode disabled
                     right_command.data[5] = 0x00;  // Inverter disabled, discharge disabled, speed mode disabled
                 }
-            } else if (!skip_enable) {
+            } else if (!first_enable) {
                 left_command.data[5] = 0x01;   // Inverter enabled, discharge disabled, speed mode disabled
                 right_command.data[5] = 0x01;  // Inverter enabled, discharge disabled, speed mode disabled
             }
         }
-    }
-
-    if (CVC_data[CVC_STATE] == READY_TO_DRIVE && skip_enable) {
-        skip_enable = false;
-    } else if (CVC_data[CVC_STATE] != READY_TO_DRIVE) {
-        skip_enable = true;
+        if (first_enable) {
+            first_enable = false;
+        }
+    } else {
+        first_enable = false;
     }
 
     left_command.Tx_header.DLC = 8;

@@ -192,14 +192,15 @@ void CVC_StateMachine() {
 
             if (requested_drive_mode == NEUTRAL) {
                 state = NOT_READY_TO_DRIVE;
-            } else if (requested_drive_mode == DRIVE) {
+            } else if (requested_drive_mode == DRIVE && CVC_data[CVC_DRIVE_MODE] != REVERSE) {
                 drive_mode = DRIVE;
                 pumps = true;
-            } else if (requested_drive_mode == REVERSE) {
+            } else if (requested_drive_mode == REVERSE && CVC_data[CVC_DRIVE_MODE] != DRIVE) {
                 drive_mode = REVERSE;
                 pumps = true;
+            } else {
+                state = NOT_READY_TO_DRIVE;
             }
-
             break;
         default:
             state = WAIT_FOR_PRECHARGE;
