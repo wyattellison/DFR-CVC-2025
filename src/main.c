@@ -28,6 +28,7 @@
 #include <cvc/throttle.h>
 #include <cvc/statemachine.h>
 #include <cvc/torque.h>
+#include <cvc/controls.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
