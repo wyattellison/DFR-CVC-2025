@@ -110,7 +110,7 @@ int main(void)
   MX_SPI1_Init();
   MX_ADC1_Init();
   MX_ADC2_Init();
-  //MX_CAN1_Init(); // disabled for NUCLEO devboard testing!
+  MX_CAN1_Init(); // disabled for NUCLEO devboard testing!
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
   Analog_Configure();
@@ -125,29 +125,29 @@ int main(void)
   while (1)
   {
 
-    // uint32_t now = HAL_GetTick();
-    // CVC_data[CVC_MAIN_LOOP_TIME] = now - last_time;
-    // last_time = now;
+    uint32_t now = HAL_GetTick();
+    CVC_data[CVC_MAIN_LOOP_TIME] = now - last_time;
+    last_time = now;
 
-    // // Get latest vehicle information
-    // Analog_ReadThrottle();
-    // Analog_ReadLV();
-    // CVC_12V_ReadAll();
-    // CAN_Process_RX();
+    // Get latest vehicle information
+    Analog_ReadThrottle();
+    Analog_ReadLV();
+    CVC_12V_ReadAll();
+    CAN_Process_RX();
 
-    // // Use new data to make vehicle control decisions
-    // Torque_CalculateAvailableTorque();
-    // Throttle_ProcessThrottle();
-    // CVC_StateMachine();
-    // Torque_CalculateAcceleration();
-    // Torque_CalculateTorque();
+    // Use new data to make vehicle control decisions
+    Torque_CalculateAvailableTorque();
+    Throttle_ProcessThrottle();
+    CVC_StateMachine();
+    Torque_CalculateAcceleration();
+    Torque_CalculateTorque();
 
-    // // Send CVC data to rest of vehicle
-    // CAN_BroadcastSafety();
-    // CAN_BroadcastData();
-    // Torque_SendTorque();
-    // CAN_Process_TX();
-    // Relay_Send();
+    // Send CVC data to rest of vehicle
+    CAN_BroadcastSafety();
+    CAN_BroadcastData();
+    Torque_SendTorque();
+    CAN_Process_TX();
+    Relay_Send();
 
     /* USER CODE END WHILE */
     /* USER CODE BEGIN 3 */
