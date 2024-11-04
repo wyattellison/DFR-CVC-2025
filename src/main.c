@@ -29,6 +29,7 @@
 #include <cvc/statemachine.h>
 #include <cvc/torque.h>
 #include <cvc/controls.h>
+#include <cvc/uart.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -54,6 +55,8 @@ CAN_HandleTypeDef hcan1;
 
 SPI_HandleTypeDef hspi1;
 
+UART_HandleTypeDef huart3;
+
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -65,8 +68,9 @@ static void MX_SPI1_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_ADC2_Init(void);
 static void MX_CAN1_Init(void);
+static void MX_USART3_UART_Init(void);
 /* USER CODE BEGIN PFP */
-
+#define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -106,7 +110,8 @@ int main(void)
   MX_SPI1_Init();
   MX_ADC1_Init();
   MX_ADC2_Init();
-  MX_CAN1_Init();
+  //MX_CAN1_Init(); // disabled for NUCLEO devboard testing!
+  MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
   Analog_Configure();
   Relay_Enable();
@@ -119,31 +124,35 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    uint32_t now = HAL_GetTick();
-    CVC_data[CVC_MAIN_LOOP_TIME] = now - last_time;
-    last_time = now;
 
-    // Get latest vehicle information
-    Analog_ReadThrottle();
-    Analog_ReadLV();
-    CVC_12V_ReadAll();
-    CAN_Process_RX();
+    // uint32_t now = HAL_GetTick();
+    // CVC_data[CVC_MAIN_LOOP_TIME] = now - last_time;
+    // last_time = now;
 
-    // Use new data to make vehicle control decisions
-    Torque_CalculateAvailableTorque();
-    Throttle_ProcessThrottle();
-    CVC_StateMachine();
-    Torque_CalculateAcceleration();
-    Torque_CalculateTorque();
+    // // Get latest vehicle information
+    // Analog_ReadThrottle();
+    // Analog_ReadLV();
+    // CVC_12V_ReadAll();
+    // CAN_Process_RX();
 
-    // Send CVC data to rest of vehicle
-    CAN_BroadcastSafety();
-    CAN_BroadcastData();
-    Torque_SendTorque();
-    CAN_Process_TX();
-    Relay_Send();
+    // // Use new data to make vehicle control decisions
+    // Torque_CalculateAvailableTorque();
+    // Throttle_ProcessThrottle();
+    // CVC_StateMachine();
+    // Torque_CalculateAcceleration();
+    // Torque_CalculateTorque();
+
+    // // Send CVC data to rest of vehicle
+    // CAN_BroadcastSafety();
+    // CAN_BroadcastData();
+    // Torque_SendTorque();
+    // CAN_Process_TX();
+    // Relay_Send();
+
     /* USER CODE END WHILE */
     /* USER CODE BEGIN 3 */
+    uart_printf("hello uart!\n\r");
+    HAL_Delay(500);
   }
   /* USER CODE END 3 */
 }
@@ -410,6 +419,41 @@ static void MX_SPI1_Init(void)
   /* USER CODE BEGIN SPI1_Init 2 */
 
   /* USER CODE END SPI1_Init 2 */
+
+}
+
+/**
+  * @brief USART3 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_USART3_UART_Init(void)
+{
+
+  /* USER CODE BEGIN USART3_Init 0 */
+
+  /* USER CODE END USART3_Init 0 */
+
+  /* USER CODE BEGIN USART3_Init 1 */
+
+  /* USER CODE END USART3_Init 1 */
+  huart3.Instance = USART3;
+  huart3.Init.BaudRate = 115200;
+  huart3.Init.WordLength = UART_WORDLENGTH_8B;
+  huart3.Init.StopBits = UART_STOPBITS_1;
+  huart3.Init.Parity = UART_PARITY_NONE;
+  huart3.Init.Mode = UART_MODE_TX_RX;
+  huart3.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart3.Init.OverSampling = UART_OVERSAMPLING_16;
+  huart3.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
+  huart3.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+  if (HAL_UART_Init(&huart3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN USART3_Init 2 */
+
+  /* USER CODE END USART3_Init 2 */
 
 }
 
