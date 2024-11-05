@@ -93,6 +93,7 @@ typedef enum {
     CVC_IMD_STATE,          // IMD state
     CVC_BMS_STATE,          // BMS state
     CVC_MAIN_LOOP_TIME,     // Main loop time (ms)
+    CVC_GENERIC_LOOP_TIME, // Random loop time
     CVC_RX_QUEUE_SIZE,      // Number of unprocessed messages in RX queue
     // === Front Sensor Board ==
     SENSOR_THROTTLE_ADC,

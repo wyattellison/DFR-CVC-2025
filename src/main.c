@@ -136,11 +136,9 @@ int main(void)
     CAN_Process_RX();
 
     // Use new data to make vehicle control decisions
-    Torque_CalculateAvailableTorque();
-    Throttle_ProcessThrottle();
+    Controls_ProcessInputs();
     CVC_StateMachine();
-    Torque_CalculateAcceleration();
-    Torque_CalculateTorque();
+    Controls_ProcessOutputs();
 
     // Send CVC data to rest of vehicle
     CAN_BroadcastSafety();
@@ -149,10 +147,13 @@ int main(void)
     CAN_Process_TX();
     Relay_Send();
 
+    //Run uart sampling rate printouts;
+    uart_printSamplingRates();
+
     /* USER CODE END WHILE */
     /* USER CODE BEGIN 3 */
-    uart_printf("hello uart!\n\r");
-    HAL_Delay(500);
+    // uart_printf("hello uart!\n\r");
+    // HAL_Delay(500);
   }
   /* USER CODE END 3 */
 }

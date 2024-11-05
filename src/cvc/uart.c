@@ -13,6 +13,11 @@
 
 extern UART_HandleTypeDef huart3;
 
+// Main uart sampling data vector
+// Data array stored as single 64-bit integer
+volatile uint32_t uart_time_last_sampled[UART_NUM_MESSAGES];
+volatile uint32_t uart_sample_rates[UART_NUM_MESSAGES];
+
 /**
   * @brief  Retargets the C library printf function to the USART.
   *   None
@@ -40,3 +45,33 @@ void uart_printf(const char *format, ...) {
 }
 #endif
 
+void uart_printSamplingRates(void) {
+  static uint32_t last = 0;
+  if ( HAL_GetTick() - last < UART_PRINT_SAMPLE_PERIOD ) {
+      return;
+  }
+  last = HAL_GetTick();
+
+  #ifdef CSV_PRINTOUTS
+    uart_printf("%d,%d,%d,%d\n", 
+    uart_sample_rates[UART_INVERTER1_MOTOR_SPEED], 
+    uart_sample_rates[UART_INVERTER2_MOTOR_SPEED], 
+    uart_sample_rates[UART_THROTTLE], 
+    uart_sample_rates[UART_INVERTER1_TEMP1]);
+  #else
+    uart_printf("sampling rates: inverter1: %d, inverter2: %d, throttle: %d, i1_temp1: %d (all in ms)\n\r", 
+    uart_sample_rates[UART_INVERTER1_MOTOR_SPEED], 
+    uart_sample_rates[UART_INVERTER2_MOTOR_SPEED], 
+    uart_sample_rates[UART_THROTTLE], 
+    uart_sample_rates[UART_INVERTER1_TEMP1]);
+  #endif
+
+
+}
+
+void uart_update_sampling_rate(uint32_t index) {
+  uint32_t last_time = uart_time_last_sampled[index];
+  uart_time_last_sampled[index] = HAL_GetTick();
+
+  uart_sample_rates[index] = uart_time_last_sampled[index] - last_time;
+}

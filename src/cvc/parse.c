@@ -168,6 +168,9 @@ void CAN_Parse_EMUS_BatteryVoltageOverallParameters() {
         data[i] = (CAN_data[EMUS_BatteryVoltageOverallParameters] >> (i * 8)) & 0xFF;
     }
 
+    uint32_t last_time = CVC_data[CVC_GENERIC_LOOP_TIME];
+    CVC_data[CVC_GENERIC_LOOP_TIME] = HAL_GetTick() - last_time;
+
     // Byte 0: Min cell voltage
     CVC_data[BMS_MIN_CELL_VOLTAGE] = data[0] + 200;
     // Byte 1: Max cell voltage
@@ -546,6 +549,7 @@ void CAN_Parse_SensorBoard() {
     CVC_data[SENSOR_THROTTLE_ADC] = data[6] | (data[7] << 8);
 
     CAN_data_parsed[SENSORBOARD_Data] = true;
+
 }
 
 /**

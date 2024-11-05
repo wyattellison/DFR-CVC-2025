@@ -1,0 +1,23 @@
+--- Terminal on /dev/cu.usbmodem2103 | 115200 8-N-1
+--- Available filters and text transformations: colorize, debug, default, direct, hexlify, log2file, nocontrol, printable, send_on_enter, time
+--- More details at https://bit.ly/pio-monitor-filters
+--- Quit: Ctrl+C | Menu: Ctrl+T | Help: Ctrl+T followed by Ctrl+H
+sampling rates: inverter1: 0, inverter2: 0, throttle: 495, i1_temp1: 0 (all in ms)
+sampling rates: inverter1: 0, inverter2: 0, throttle: 185, i1_temp1: 0 (all in ms)
+sampling rates: inverter1: 0, inverter2: 0, throttle: 166, i1_temp1: 0 (all in ms)
+sampling rates: inverter1: 0, inverter2: 0, throttle: 179, i1_temp1: 0 (all in ms)
+sampling rates: inverter1: 0, inverter2: 0, throttle: 536, i1_temp1: 0 (all in ms)
+sampling rates: inverter1: 0, inverter2: 0, throttle: 165, i1_temp1: 0 (all in ms)
+sampling rates: inverter1: 0, inverter2: 0, throttle: 773, i1_temp1: 0 (all in ms)
+sampling rates: inverter1: 0, inverter2: 0, throttle: 701, i1_temp1: 0 (all in ms)
+sampling rates: inverter1: 0, inverter2: 0, throttle: 489, i1_temp1: 0 (all in ms)
+sampling rates: inverter1: 0, inverter2: 0, throttle: 707, i1_temp1: 0 (all in ms)
+sampling rates: inverter1: 0, inverter2: 0, throttle: 289, i1_temp1: 0 (all in ms)
+sampling rates: inverter1: 0, inverter2: 0, throttle: 204, i1_temp1: 0 (all in ms)
+sampling rates: inverter1: 0, inverter2: 0, throttle: 251, i1_temp1: 0 (all in ms)
+sampling rates: inverter1: 0, inverter2: 0, throttle: 165, i1_temp1: 0 (all in ms)
+sampling rates: inverter1: 0, inverter2: 0, throttle: 582, i1_temp1: 0 (all in ms)
+sampling rates: inverter1: 0, inverter2: 0, throttle: 176, i1_temp1: 0 (all in ms)
+sampling rates: inverter1: 0, inverter2: 0, throttle: 207, i1_temp1: 0 (all in ms)
+sampling rates: inverter1: 0, inverter2: 0, throttle: 703, i1_temp1: 0 (all in ms)
+sampling rates: inverter1: 0, inverter2: 0, throttle: 149, i1_temp1: 0 (all in ms)

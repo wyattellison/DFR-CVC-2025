@@ -11,6 +11,7 @@
 #include <cvc/statemachine.h>
 #include <main.h>
 #include <stm32f7xx_hal_can.h>
+#include <cvc/uart.h>
 
 CircularBuffer CANRxBuffer;
 CircularBuffer CANTxBuffer;
@@ -126,6 +127,15 @@ void CAN_Queue_TX(CAN_Queue_Frame_t *tx_frame) {
 
 void CAN_Store_Data(uint32_t IDE, uint32_t id, uint64_t data64) {
     if (IDE == CAN_ID_STD) {  // Standard message parsers
+        if (id == 7) {
+        
+            #ifdef ENABLE_UART_PRINTOUTS
+                uart_update_sampling_rate(UART_THROTTLE);
+                //do nothing if ENABLE_UART_PRINTOUTS is not defined
+            #endif
+
+        }
+
         if (id == ((CAN_DASHBOARD_BASE_11))) {
             // DASHBOARD Selector
             CAN_data[DASHBOARD_Selector] = data64;
@@ -134,11 +144,23 @@ void CAN_Store_Data(uint32_t IDE, uint32_t id, uint64_t data64) {
             // SENSORBOARD Data
             CAN_data[SENSORBOARD_Data] = data64;
             CAN_data_parsed[SENSORBOARD_Data] = false;
+
+
+            #ifdef ENABLE_UART_PRINTOUTS
+                uart_update_sampling_rate(UART_THROTTLE);
+                //do nothing if ENABLE_UART_PRINTOUTS is not defined
+            #endif
         }
         if (!CAN_INVERTER_USE_EXT) {
             if (id == ((CAN_INVERTER_BASE_ID1_11 + 0))) {
                 CAN_data[INVERTER1_Temp1] = data64;
                 CAN_data_parsed[INVERTER1_Temp1] = false;
+
+                
+                #ifdef ENABLE_UART_PRINTOUTS
+                    uart_update_sampling_rate(UART_INVERTER1_TEMP1);
+                #endif
+
             } else if (id == ((CAN_INVERTER_BASE_ID1_11 + 1))) {
                 CAN_data[INVERTER1_Temp2] = data64;
                 CAN_data_parsed[INVERTER1_Temp2] = false;
@@ -155,6 +177,11 @@ void CAN_Store_Data(uint32_t IDE, uint32_t id, uint64_t data64) {
             } else if (id == ((CAN_INVERTER_BASE_ID1_11 + 5))) {
                 CAN_data[INVERTER1_MotorPositionParameters] = data64;
                 CAN_data_parsed[INVERTER1_MotorPositionParameters] = false;
+
+                #ifdef ENABLE_UART_PRINTOUTS
+                    uart_update_sampling_rate(UART_INVERTER1_MOTOR_SPEED);
+                #endif
+
             } else if (id == ((CAN_INVERTER_BASE_ID1_11 + 6))) {
                 CAN_data[INVERTER1_CurrentParameters] = data64;
                 CAN_data_parsed[INVERTER1_CurrentParameters] = false;
@@ -211,6 +238,11 @@ void CAN_Store_Data(uint32_t IDE, uint32_t id, uint64_t data64) {
             } else if (id == ((CAN_INVERTER_BASE_ID2_11 + 5))) {
                 CAN_data[INVERTER2_MotorPositionParameters] = data64;
                 CAN_data_parsed[INVERTER2_MotorPositionParameters] = false;
+
+                #ifdef ENABLE_UART_PRINTOUTS
+                    uart_update_sampling_rate(UART_INVERTER2_MOTOR_SPEED);
+                #endif
+
             } else if (id == ((CAN_INVERTER_BASE_ID2_11 + 6))) {
                 CAN_data[INVERTER2_CurrentParameters] = data64;
                 CAN_data_parsed[INVERTER2_CurrentParameters] = false;
@@ -388,6 +420,12 @@ void CAN_Store_Data(uint32_t IDE, uint32_t id, uint64_t data64) {
             } else if (id == ((CAN_INVERTER_BASE_ID1_29 + 5))) {
                 CAN_data[INVERTER1_MotorPositionParameters] = data64;
                 CAN_data_parsed[INVERTER1_MotorPositionParameters] = false;
+
+                #ifdef ENABLE_UART_PRINTOUTS
+                    uart_update_sampling_rate(UART_INVERTER1_MOTOR_SPEED);
+                #endif
+
+
             } else if (id == ((CAN_INVERTER_BASE_ID1_29 + 6))) {
                 CAN_data[INVERTER1_CurrentParameters] = data64;
                 CAN_data_parsed[INVERTER1_CurrentParameters] = false;
@@ -444,6 +482,10 @@ void CAN_Store_Data(uint32_t IDE, uint32_t id, uint64_t data64) {
             } else if (id == ((CAN_INVERTER_BASE_ID2_29 + 5))) {
                 CAN_data[INVERTER2_MotorPositionParameters] = data64;
                 CAN_data_parsed[INVERTER2_MotorPositionParameters] = false;
+
+                #ifdef ENABLE_UART_PRINTOUTS
+                    uart_update_sampling_rate(UART_INVERTER2_MOTOR_SPEED);
+                #endif
             } else if (id == ((CAN_INVERTER_BASE_ID2_29 + 6))) {
                 CAN_data[INVERTER2_CurrentParameters] = data64;
                 CAN_data_parsed[INVERTER2_CurrentParameters] = false;
@@ -503,7 +545,7 @@ void CAN_BroadcastSafety() {
     tx_frame.data[5] = CVC_data[CVC_COCKPIT_BRB_STATE];
     tx_frame.data[6] = CANRxOverflow;
     // tx_frame.data[7] = CVC_data[CVC_MAIN_LOOP_TIME];
-    tx_frame.data[7] = CVC_data[CVC_RX_QUEUE_SIZE];
+    tx_frame.data[7] = CVC_data[CVC_GENERIC_LOOP_TIME];
     CAN_Queue_TX(&tx_frame);
 }
 
