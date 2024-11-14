@@ -81,6 +81,7 @@ void CAN_Process_RX() {
         for (uint32_t j = 0; j < 8; j++) {
             data64 |= (uint64_t)rx_frame.data[j] << (j * 8);
         }
+        
         if (rx_frame.Rx_header.IDE == CAN_ID_STD) {
             CAN_Store_Data(rx_frame.Rx_header.IDE, rx_frame.Rx_header.StdId, data64);
         } else {
@@ -329,6 +330,7 @@ void CAN_Store_Data(uint32_t IDE, uint32_t id, uint64_t data64) {
         }
 
     } else {  // Extended message parsers
+
         if (CAN_EMUS_USE_EXT) {
             if (id == ((CAN_EMUS_BASE_29 << 16) | 0x0000)) {
                 // EMUS BMS Overall Parameters - Byte 3 = 0x00 and Byte 4 = 0x00
@@ -417,7 +419,7 @@ void CAN_Store_Data(uint32_t IDE, uint32_t id, uint64_t data64) {
             } else if (id == ((CAN_INVERTER_BASE_ID1_29 + 4))) {
                 CAN_data[INVERTER1_DigitalInputStatus] = data64;
                 CAN_data_parsed[INVERTER1_DigitalInputStatus] = false;
-            } else if (id == ((CAN_INVERTER_BASE_ID1_29 + 5))) {
+            } else if (id == ((CAN_INVERTER_BASE_ID1_29 + 5))) {            
                 CAN_data[INVERTER1_MotorPositionParameters] = data64;
                 CAN_data_parsed[INVERTER1_MotorPositionParameters] = false;
 
